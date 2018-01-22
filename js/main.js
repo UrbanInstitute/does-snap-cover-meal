@@ -30,7 +30,8 @@ var mapSvg = d3.select("#map").append("svg")
   .attr("width", map_width)
   .attr("height", map_height)
 
-var colors =["#cfe8f3","#a2d4ec","#73bfe2","#46abdb","#1696d2","#12719e","#fdbf11"]
+
+var colors =["#12719e","#1696d2","#46abdb","#73bfe2","#a2d4ec","#cfe8f3","#fff2cf"]
 var breaks = [.5,.6,.7,.8,.9,1,1.1]
 var colorScale = d3.scaleThreshold();    
 
