@@ -33,6 +33,7 @@ html, body{
   fill: none;
   stroke: #fff;
   stroke-linejoin: round;
+  pointer-events: none;
 }
 
 .pieLabel{
