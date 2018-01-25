@@ -14,8 +14,8 @@ html, body{
   pointer-events: none;
 }
 .countyPath.hide{
-	fill: #d2d2d2 !important;
-	stroke: #d2d2d2 !important;
+	fill: #9d9d9d !important;
+	stroke: #9d9d9d !important;
 }
 .mouseover{
 	fill: black !important;

@@ -31,29 +31,29 @@ var mapSvg = d3.select("#map").append("svg")
   .attr("height", map_height)
 
 
-var colors =["#12719e","#1696d2","#46abdb","#73bfe2","#a2d4ec","#cfe8f3","#fff2cf"]
-var breaks = [.5,.6,.7,.8,.9,1,1.1]
+var colors =["#fff2cf","#cfe8f3","#a2d4ec","#73bfe2","#46abdb","#1696d2","#12719e"]
+var breaks = [0,.1,.2,.3,.4,.5,1]
 var colorScale = d3.scaleThreshold();    
 
 colorScale.range(colors);
 colorScale.domain(breaks);
 
 mapSvg.append("text")
-  .attr("x", 10)
+  .attr("x", 15)
   .attr("y", 20)
   .attr("id", "legendTitle")
-  .text("SNAP Benefits as Percentage of Meal Costs")
+  .text("SNAP Shortfall as Percentage of Meal Costs")
 
 var keyW = 40
 var keyH = 20;
 var legend = mapSvg.append("g")
-  .attr("transform", "translate(10, 30)")
+  .attr("transform", "translate(15, 30)")
 legend.append("text")
   .attr("class", "keyItem")
   .attr("dx", 0)
   .attr("text-anchor", "middle")
   .attr("dy", keyH + 13)
-  .text(PERCENT(0))
+  .text(PERCENT(-.1))
 for (var i = 0; i < breaks.length; i++){
   legend.append("rect")
     .attr("x", i*keyW)
@@ -97,11 +97,11 @@ var pieSvg = d3.select("#pie").append("svg")
 
 d3.select("#pie").append("div")
   .attr("id", "tt-text")
-  .html("SNAP benefits of $1.70 per meal cover <span id = \"tt-percent\">" + PERCENT(SNAP_COST/ US_MEAL) + "</span> of <span id = \"tt-dollars\">" + DOLLARS(US_MEAL) + "</span>, the cost of a meal at 130% of the poverty rate.")
+  .html("There is a shortfall of <span id = \"tt-percent\">" + PERCENT(1 - SNAP_COST/ US_MEAL) + "</span>, based on food cost of <span id = \"tt-dollars\">" + DOLLARS(US_MEAL) + "</span>.")
 
 var pie = d3.pie()
     .sort(null)
-    .value(function(d) { return d.ratio; });
+    .value(function(d) { return 1 - d.ratio; });
 
 var piePath = d3.arc()
     .outerRadius(pie_radius - 10)
@@ -115,7 +115,7 @@ var arc = pieSvg.selectAll(".arc")
 
 var slice = arc.append("path")
     .attr("d", piePath)
-    .attr("fill", function(d) { return (d.data.fill == "empty") ? "none" : colorScale(d.data.ratio) });
+    .attr("fill", function(d) { return (d.data.fill == "empty") ? "#d2d2d2" : colorScale(1 - d.data.ratio) });
 
 arc.append("circle")
   .attr("r", pie_inner_radius)
@@ -128,7 +128,7 @@ var pieLabel = arc.append("text")
   .attr("class","pieLabel")
   .attr("text-anchor","middle")
   .attr("dy",9)
-  .text(function(d){ return (d.data.fill == "chart") ? PERCENT(d.data.ratio) : ""})
+  .text(function(d){ return (d.data.fill == "chart") ? PERCENT(1 - d.data.ratio) : ""})
 
 function arcTween(a) {
   var i = d3.interpolate(this._current, a);
@@ -141,16 +141,16 @@ function arcTween(a) {
 
 function restoreNational(){
   d3.select("#tt-dollars").text(DOLLARS(US_MEAL))
-  d3.select("#tt-percent").text(PERCENT(SNAP_COST/ US_MEAL))
+  d3.select("#tt-percent").text(PERCENT(1- SNAP_COST/ US_MEAL))
   d3.select("#countyLabel").text("National Average")
   slice
     .data(pie([{"ratio": 1.0 - US_RATIO,"fill":"empty"},{"ratio": US_RATIO,"fill":"chart"}]))
     .transition().duration(400).attrTween("d", arcTween)
-      .attr("fill", function(c) { return (c.data.fill == "empty") ? "none" : colorScale(c.data.ratio) });
+      .attr("fill", function(c) { return (c.data.fill == "empty") ? "#d2d2d2" : colorScale(1 - c.data.ratio) });
 
   d3.selectAll(".pieLabel")
     .data(pie([{"ratio": 1 - US_RATIO,"fill":"empty"},{"ratio": US_RATIO,"fill":"chart"}]))
-    .text(function(c){ return (c.data.fill == "chart") ? PERCENT(c.data.ratio) : ""})
+    .text(function(c){ return (c.data.fill == "chart") ? PERCENT(1 - c.data.ratio) : ""})
 
 }
 
@@ -168,7 +168,7 @@ d3.json("data/data.json", function(error, us) {
       .attr("d", path)
       .attr("class", function(d){
         var cost = +d.properties.cost;
-        var color = colorScale(SNAP_COST/cost)
+        var color = colorScale(1 - SNAP_COST/cost)
         return "countyPath q-" + colors.indexOf(color)
       })
       .attr("display", function(d){
@@ -176,11 +176,11 @@ d3.json("data/data.json", function(error, us) {
       })
       .attr("fill", function(d){
         var cost = +d.properties.cost;
-        return colorScale(SNAP_COST/cost)
+        return colorScale(1 - SNAP_COST/cost)
       })
       .attr("stroke", function(d){
         var cost = +d.properties.cost;
-        return colorScale(SNAP_COST/cost)
+        return colorScale(1 - SNAP_COST/cost)
       })
       .on("mouseover", function(d){
 
@@ -203,11 +203,11 @@ d3.json("data/data.json", function(error, us) {
         slice
           .data(pie([{"ratio": 1.0 - ratio,"fill":"empty"},{"ratio": ratio,"fill":"chart"}]))
           .transition().duration(400).attrTween("d", arcTween)
-            .attr("fill", function(c) { return (c.data.fill == "empty") ? "none" : colorScale(c.data.ratio) });
+            .attr("fill", function(c) { return (c.data.fill == "empty") ? "#d2d2d2" : colorScale(1 - c.data.ratio) });
 
         d3.selectAll(".pieLabel")
           .data(pie([{"ratio": 1 - ratio,"fill":"empty"},{"ratio": ratio,"fill":"chart"}]))
-          .text(function(c){ return (c.data.fill == "chart") ? PERCENT(c.data.ratio) : ""})
+          .text(function(c){ return (c.data.fill == "chart") ? PERCENT(1 - c.data.ratio) : ""})
 
       })
       .on("mouseout", function(d){
