@@ -191,7 +191,7 @@ d3.json("data/data.json", function(error, us) {
           .classed("mouseover", true)
 
         d3.select("#tt-percent")
-          .text(PERCENT(ratio))
+          .text(PERCENT(1-ratio))
 
         d3.select("#tt-dollars")
           .text(DOLLARS(+d.properties.cost))
