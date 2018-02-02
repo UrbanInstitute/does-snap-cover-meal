@@ -1,7 +1,9 @@
-var SNAP_COST = 1.7;
+// var SNAP_COST = 1.7;
 var US_MEAL = 2.29;
 var PERCENT = d3.format(".0%")
 var DOLLARS = d3.format("$.2f")
+
+
 
 var pie_radius = 100;
 var pie_inner_radius = 40;
@@ -25,6 +27,10 @@ var active = ""
     // path = d3.geoPath().projection(scale(2));
 
 
+
+function drawGraphic(SNAP_COST){
+d3.selectAll("svg").remove()
+d3.selectAll(".toRemove").remove()
 var path = d3.geoPath().projection(scale(map_width/960));
 
 var legendSvg = d3.select("#map").append("svg")
@@ -97,6 +103,7 @@ d3.select("#pie").append("div")
   .style("width", pie_width + "px")
   .style("height", "40px")
   .attr("id", "countyLabel")
+  .attr("class","toRemove")
   .text("National Average")
   .style("margin-top", legend_height + "px")
 
@@ -107,6 +114,7 @@ var pieSvg = d3.select("#pie").append("svg")
 
 d3.select("#pie").append("div")
   .attr("id", "tt-text")
+  .attr("class","toRemove")
   .html("There is a shortfall of <span id = \"tt-percent\">" + PERCENT(1 - SNAP_COST/ US_MEAL) + "</span>, based on food cost of <span id = \"tt-dollars\">" + DOLLARS(US_MEAL) + "</span>.")
 
 var pie = d3.pie()
@@ -327,3 +335,10 @@ function reset() {
 
 
 });
+}
+drawGraphic(1.7) 
+// drawGraphic() 
+d3.select("#test")
+  .on("input", function(){
+    drawGraphic($(this).val())
+  })
