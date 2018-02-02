@@ -11,6 +11,7 @@ var pie_height = pie_radius*2;
 var map_width = 700;
 var legend_height = 80;
 var map_height = map_width * (600/960) + legend_height;
+var active = ""
 
 
     function scale (scaleFactor) {
@@ -26,6 +27,11 @@ var map_height = map_width * (600/960) + legend_height;
 
 var path = d3.geoPath().projection(scale(map_width/960));
 
+var legendSvg = d3.select("#map").append("svg")
+  .attr("width", map_width)
+  .attr("height", legend_height)
+
+
 var mapSvg = d3.select("#map").append("svg")
   .attr("width", map_width)
   .attr("height", map_height)
@@ -38,7 +44,7 @@ var colorScale = d3.scaleThreshold();
 colorScale.range(colors);
 colorScale.domain(breaks);
 
-mapSvg.append("text")
+legendSvg.append("text")
   .attr("x", 15)
   .attr("y", 20)
   .attr("id", "legendTitle")
@@ -46,7 +52,7 @@ mapSvg.append("text")
 
 var keyW = 40
 var keyH = 20;
-var legend = mapSvg.append("g")
+var legend = legendSvg.append("g")
   .attr("transform", "translate(15, 30)")
 legend.append("text")
   .attr("class", "keyItem")
@@ -80,8 +86,12 @@ for (var i = 0; i < breaks.length; i++){
 
 
 d3.select("#pie")
-  .style("height", map_height + "px")
+  .style("height", (map_height + legend_height) + "px")
   .style("width", pie_width)
+
+d3.select("#map")
+  .style("height", (map_height + legend_height) + "px")
+  .style("width", map_width)
 
 d3.select("#pie").append("div")
   .style("width", pie_width + "px")
@@ -159,9 +169,10 @@ restoreNational();
 d3.json("data/data.json", function(error, us) {
   if (error) throw error;
 
-  mapSvg.append("g")
-    .attr("class", "counties")
-    .attr("transform", "translate(0," + legend_height + ")")
+  var g = mapSvg.append("g")
+  
+    g.attr("class", "counties")
+    // .attr("transform", "translate(0," + legend_height + ")")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.counties).features)
     .enter().append("path")
@@ -169,7 +180,9 @@ d3.json("data/data.json", function(error, us) {
       .attr("class", function(d){
         var cost = +d.properties.cost;
         var color = colorScale(1 - SNAP_COST/cost)
-        return "countyPath q-" + colors.indexOf(color)
+        var st = d.id.substring(0,2)
+
+        return "countyPath q-" + colors.indexOf(color) + " st-" + st
       })
       .attr("display", function(d){
         return d.properties.hasOwnProperty("cost") ? "block" : "none"
@@ -214,18 +227,101 @@ d3.json("data/data.json", function(error, us) {
           restoreNational();
           d3.select(this)
             .classed("mouseover", false)
-      });
+      })
+      .on("click", clicked)
 
-  mapSvg.append("path")
+            
+
+
+  g.append("path")
       .attr("class", "county-borders")
       .attr("d", path(topojson.mesh(us, us.objects.counties, function(a, b) { return a !== b; })))
 
-  mapSvg.append("path")
-      .attr("transform", "translate(0," + legend_height + ")")
+  g.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
       .attr("class", "states")
-      .attr("d", path);
+      .attr("d", path)
 
+
+
+
+
+// function clicked(c) {
+//   console.log(d, us.objects.states)
+//   var st = c.id.substring(0,2),
+//     state = topojson.feature(us, us.objects.states).features.filter(function(s){ return s.id == st})[0]
+// var d = state;
+//   var x, y, k;
+
+//   if (d && centered !== d) {
+//     var centroid = path.centroid(d);
+//     x = centroid[0];
+//     y = centroid[1];
+//     k = 4;
+//     centered = d;
+//   } else {
+//     x = width / 2;
+//     y = height / 2;
+//     k = 1;
+//     centered = null;
+//   }
+
+//   g.selectAll("path")
+//       .classed("active", centered && function(d) { return d === centered; });
+
+//   g.transition()
+//       .duration(750)
+//       .attr("transform", "translate(" + map_width / 2 + "," + map_height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+//       .style("stroke-width", 1.5 / k + "px");
+// }
+
+
+
+function clicked(c) {
+  var st = c.id.substring(0,2)
+  if (active == st){ return reset() }
+
+  var d = topojson.feature(us, us.objects.states).features.filter(function(s){ return s.id == st})[0]
+
+  d3.selectAll(".countyPath:not(.st-" + st + ")").transition()
+    .style("opacity",.4)
+    .style("stroke-opacity",0)
+  d3.selectAll(".countyPath.st-" + st)
+    .style("opacity",1)
+    .style("stroke-opacity",1)
+
+
+  
+
+  active = st;
+
+
+  var bounds = path.bounds(d),
+      dx = bounds[1][0] - bounds[0][0],
+      dy = bounds[1][1] - bounds[0][1],
+      x = (bounds[0][0] + bounds[1][0]) / 2,
+      y = (bounds[0][1] + bounds[1][1]) / 2,
+      scale = .9 / Math.max(dx / map_width, dy / map_height),
+      translate = [map_width / 2 - scale * x, map_height / 2 - scale * y];
+
+  g.transition()
+      .duration(750)
+      .style("stroke-width", 1.5 / scale + "px")
+      .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+}
+
+function reset() {
+  d3.selectAll(".countyPath").transition()
+    .style("opacity",1)
+    .style("stroke-opacity",1)
+  active = ""
+  
+
+  g.transition()
+      .duration(750)
+      .style("stroke-width", "1.5px")
+      .attr("transform", "");
+}
 
 
 
