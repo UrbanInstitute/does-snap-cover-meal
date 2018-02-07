@@ -17,6 +17,10 @@ body{
 	fill: #9d9d9d !important;
 	stroke: #9d9d9d !important;
 }
+.countyPath.zoomed{
+	stroke: #ffffff !important;
+	stroke-width: .25px !important;
+}
 .mouseover, .clicked{
 	fill: #fdbf11 !important;
 	stroke: #fdbf11 !important;

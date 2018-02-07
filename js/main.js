@@ -317,10 +317,13 @@ function clicked(c) {
 
   var d = topojson.feature(us, us.objects.states).features.filter(function(s){ return s.id == st})[0]
 
-  d3.selectAll(".countyPath:not(.st-" + st + ")").transition()
+  d3.selectAll(".countyPath:not(.st-" + st + ")")
+    .classed("zoomed", false)
+    .transition()
     .style("opacity",.4)
     .style("stroke-opacity",0)
   d3.selectAll(".countyPath.st-" + st)
+    .classed("zoomed", true)
     .style("opacity",1)
     .style("stroke-opacity",1)
 
@@ -347,9 +350,12 @@ function clicked(c) {
 function reset() {
   restoreNational();
 
-  d3.selectAll(".countyPath").transition()
+  d3.selectAll(".countyPath")
+  .classed("zoomed", false)
+  .transition()
     .style("opacity",1)
     .style("stroke-opacity",1)
+
   active = ""
 
   zoomOut
