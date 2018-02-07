@@ -8,7 +8,7 @@ var DOLLARS = d3.format("$.2f")
 var pie_radius = 100;
 var pie_inner_radius = 40;
 var pie_width = 220;
-var pie_height = pie_radius*2;
+var pie_height = 100;
 
 var map_width = 700;
 var legend_height = 80;
@@ -110,7 +110,7 @@ d3.select("#pie").append("div")
 var pieSvg = d3.select("#pie").append("svg")
   .attr("width", pie_width)
   .attr("height", pie_height)
-  .append("g").attr("transform", "translate(" + pie_width / 2 + "," + pie_radius + ")");
+  // .append("g").attr("transform", "translate(" + pie_width / 2 + "," + pie_radius + ")");
 
 d3.select("#pie").append("div")
   .attr("id", "tt-text")
@@ -125,28 +125,46 @@ var piePath = d3.arc()
     .outerRadius(pie_radius - 10)
     .innerRadius(0);
 
-var US_RATIO = SNAP_COST / US_MEAL
-var arc = pieSvg.selectAll(".arc")
-    .data(pie([{"ratio": 1 - US_RATIO,"fill":"empty"},{"ratio": US_RATIO,"fill":"chart"}]))
-    .enter().append("g")
-      .attr("class", "arc");
+var US_RATIO = (US_MEAL - SNAP_COST) / SNAP_COST
+// var arc = pieSvg.selectAll(".arc")
+//     .data(pie([{"ratio": 1 - US_RATIO,"fill":"empty"},{"ratio": US_RATIO,"fill":"chart"}]))
+//     .enter().append("g")
+//       .attr("class", "arc");
 
-var slice = arc.append("path")
-    .attr("d", piePath)
-    .attr("fill", function(d) { return (d.data.fill == "empty") ? "#d2d2d2" : colorScale(1 - d.data.ratio) });
+// var slice = arc.append("path")
+//     .attr("d", piePath)
+//     .attr("fill", function(d) { return (d.data.fill == "empty") ? "#d2d2d2" : colorScale(1 - d.data.ratio) });
 
-arc.append("circle")
-  .attr("r", pie_inner_radius)
-  .attr("cx",0)
-  .attr("cy",0)
-  .attr("fill","#ffffff")
+// arc.append("circle")
+//   .attr("r", pie_inner_radius)
+//   .attr("cx",0)
+//   .attr("cy",0)
+//   .attr("fill","#ffffff")
 
 
-var pieLabel = arc.append("text")
-  .attr("class","pieLabel")
-  .attr("text-anchor","middle")
-  .attr("dy",9)
-  .text(function(d){ return (d.data.fill == "chart") ? PERCENT(1 - d.data.ratio) : ""})
+// var pieLabel = arc.append("text")
+//   .attr("class","pieLabel")
+//   .attr("text-anchor","middle")
+//   .attr("dy",9)
+//   .text(function(d){ return (d.data.fill == "chart") ? PERCENT(d.data.ratio) : ""})
+
+var barX = d3.scaleLinear().domain([4.4,0]).range([pie_width,0])
+
+var b1 = pieSvg.append("rect")
+  .attr("x", 0)
+  .attr("y",0)
+  .attr("height",40)
+  .attr("fill", "#d2d2d2")
+  .attr("width", barX(SNAP_COST))
+
+var b2 = pieSvg.append("rect")
+  .attr("id", "costRect")
+  .attr("x", 0)
+  .attr("y",50)
+  .attr("height",40)
+  .attr("fill", "#fdbf11")
+  .attr("width", barX(US_MEAL))
+
 
 function arcTween(a) {
   var i = d3.interpolate(this._current, a);
@@ -159,16 +177,19 @@ function arcTween(a) {
 
 function restoreNational(){
   d3.select("#tt-dollars").text(DOLLARS(US_MEAL))
-  d3.select("#tt-percent").text(PERCENT(1- SNAP_COST/ US_MEAL))
+  d3.select("#tt-percent").text(PERCENT(US_RATIO))
   d3.select("#countyLabel").text("National Average")
-  slice
-    .data(pie([{"ratio": 1.0 - US_RATIO,"fill":"empty"},{"ratio": US_RATIO,"fill":"chart"}]))
-    .transition().duration(400).attrTween("d", arcTween)
-      .attr("fill", function(c) { return (c.data.fill == "empty") ? "#d2d2d2" : colorScale(1 - c.data.ratio) });
+  d3.select("#costRect")
+    .transition()
+    .attr("width", barX(US_MEAL))
+  // slice
+  //   .data(pie([{"ratio": 1.0 - US_RATIO,"fill":"empty"},{"ratio": US_RATIO,"fill":"chart"}]))
+  //   .transition().duration(400).attrTween("d", arcTween)
+  //     .attr("fill", function(c) { return (c.data.fill == "empty") ? "#d2d2d2" : colorScale(1 - c.data.ratio) });
 
-  d3.selectAll(".pieLabel")
-    .data(pie([{"ratio": 1 - US_RATIO,"fill":"empty"},{"ratio": US_RATIO,"fill":"chart"}]))
-    .text(function(c){ return (c.data.fill == "chart") ? PERCENT(1 - c.data.ratio) : ""})
+  // d3.selectAll(".pieLabel")
+  //   .data(pie([{"ratio": 1 - US_RATIO,"fill":"empty"},{"ratio": US_RATIO,"fill":"chart"}]))
+  //   .text(function(c){ return (c.data.fill == "chart") ? PERCENT(c.data.ratio) : ""})
 
 }
 
@@ -211,7 +232,7 @@ d3.json("data/data.json", function(error, us) {
           .classed("mouseover", true)
 
         d3.select("#tt-percent")
-          .text(PERCENT(1-ratio))
+          .text(PERCENT(ratio))
 
         d3.select("#tt-dollars")
           .text(DOLLARS(+d.properties.cost))
@@ -220,14 +241,17 @@ d3.json("data/data.json", function(error, us) {
         d3.select("#countyLabel")
           .text(d.properties.label)
 
-        slice
-          .data(pie([{"ratio": 1.0 - ratio,"fill":"empty"},{"ratio": ratio,"fill":"chart"}]))
-          .transition().duration(400).attrTween("d", arcTween)
-            .attr("fill", function(c) { return (c.data.fill == "empty") ? "#d2d2d2" : colorScale(1 - c.data.ratio) });
+        // slice
+        //   .data(pie([{"ratio": 1.0 - ratio,"fill":"empty"},{"ratio": ratio,"fill":"chart"}]))
+        //   .transition().duration(400).attrTween("d", arcTween)
+        //     .attr("fill", function(c) { return (c.data.fill == "empty") ? "#d2d2d2" : colorScale(1 - c.data.ratio) });
 
-        d3.selectAll(".pieLabel")
-          .data(pie([{"ratio": 1 - ratio,"fill":"empty"},{"ratio": ratio,"fill":"chart"}]))
-          .text(function(c){ return (c.data.fill == "chart") ? PERCENT(1 - c.data.ratio) : ""})
+        // d3.selectAll(".pieLabel")
+        //   .data(pie([{"ratio": 1 - ratio,"fill":"empty"},{"ratio": ratio,"fill":"chart"}]))
+        //   .text(function(c){ return (c.data.fill == "chart") ? PERCENT(1 - c.data.ratio) : ""})
+        d3.select("#costRect")
+          .transition()
+          .attr("width", barX(+d.properties.cost))
 
       })
       .on("mouseout", function(d){
