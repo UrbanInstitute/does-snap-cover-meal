@@ -5,26 +5,23 @@ var DOLLARS = d3.format("$.2f")
 
 
 
-var pie_radius = 100;
-var pie_inner_radius = 40;
-var pie_width = 220;
-var pie_height = 100;
+var bars_width = 320;
+var bars_height = 100;
 
-var map_width = 700;
+var map_width = 900-bars_width;
 var legend_height = 80;
 var map_height = map_width * (600/960) + legend_height;
 var active = ""
 
 
-    function scale (scaleFactor) {
-        return d3.geoTransform({
-            point: function(x, y) {
-                this.stream.point(x * scaleFactor, y  * scaleFactor);
-            }
-        });
-    }
+function scale (scaleFactor) {
+    return d3.geoTransform({
+        point: function(x, y) {
+            this.stream.point(x * scaleFactor, y  * scaleFactor);
+        }
+    });
+}
 
-    // path = d3.geoPath().projection(scale(2));
 
 
 
@@ -91,106 +88,110 @@ for (var i = 0; i < breaks.length; i++){
 }
 
 
-d3.select("#pie")
+d3.select("#bars")
   .style("height", (map_height + legend_height) + "px")
-  .style("width", pie_width)
+  .style("width", bars_width)
 
 d3.select("#map")
   .style("height", (map_height + legend_height) + "px")
   .style("width", map_width)
 
-d3.select("#pie").append("div")
-  .style("width", pie_width + "px")
+d3.select("#bars").append("div")
+  .style("width", bars_width + "px")
   .style("height", "40px")
   .attr("id", "countyLabel")
   .attr("class","toRemove")
   .text("National Average")
   .style("margin-top", legend_height + "px")
 
-var pieSvg = d3.select("#pie").append("svg")
-  .attr("width", pie_width)
-  .attr("height", pie_height)
-  // .append("g").attr("transform", "translate(" + pie_width / 2 + "," + pie_radius + ")");
+var barsSvg = d3.select("#bars").append("svg")
+  .attr("width", bars_width)
+  .attr("height", bars_height)
 
-d3.select("#pie").append("div")
+d3.select("#bars").append("div")
   .attr("id", "tt-text")
   .attr("class","toRemove")
-  .html("The average cost of a meal is <span id = \"tt-dollars\">" + DOLLARS(US_MEAL) + "</span>, <span id = \"tt-percent\">" + PERCENT(1 - SNAP_COST/ US_MEAL) + "</span> more than the SNAP benefit.")
+  .html("The average cost of a meal is <span id = \"tt-dollars\">" + DOLLARS(US_MEAL) + "</span>,<br/><span id = \"tt-percent\">" + PERCENT(1 - SNAP_COST/ US_MEAL) + " more</span> than the SNAP benefit.")
 
-var pie = d3.pie()
-    .sort(null)
-    .value(function(d) { return 1 - d.ratio; });
-
-var piePath = d3.arc()
-    .outerRadius(pie_radius - 10)
-    .innerRadius(0);
 
 var US_RATIO = (US_MEAL - SNAP_COST) / SNAP_COST
-// var arc = pieSvg.selectAll(".arc")
-//     .data(pie([{"ratio": 1 - US_RATIO,"fill":"empty"},{"ratio": US_RATIO,"fill":"chart"}]))
-//     .enter().append("g")
-//       .attr("class", "arc");
+var marginLeft = 70,
+    marginRight = 45
+var barX = d3.scaleLinear().domain([4.4,0]).range([bars_width-marginLeft-marginRight,0])
 
-// var slice = arc.append("path")
-//     .attr("d", piePath)
-//     .attr("fill", function(d) { return (d.data.fill == "empty") ? "#d2d2d2" : colorScale(1 - d.data.ratio) });
-
-// arc.append("circle")
-//   .attr("r", pie_inner_radius)
-//   .attr("cx",0)
-//   .attr("cy",0)
-//   .attr("fill","#ffffff")
-
-
-// var pieLabel = arc.append("text")
-//   .attr("class","pieLabel")
-//   .attr("text-anchor","middle")
-//   .attr("dy",9)
-//   .text(function(d){ return (d.data.fill == "chart") ? PERCENT(d.data.ratio) : ""})
-
-var barX = d3.scaleLinear().domain([4.4,0]).range([pie_width,0])
-
-var b1 = pieSvg.append("rect")
-  .attr("x", 0)
+var b1 = barsSvg.append("rect")
+  .attr("x", marginLeft)
   .attr("y",0)
   .attr("height",40)
   .attr("fill", "#d2d2d2")
   .attr("width", barX(SNAP_COST))
 
-var b2 = pieSvg.append("rect")
+var b2 = barsSvg.append("rect")
   .attr("id", "costRect")
-  .attr("x", 0)
+  .attr("x", marginLeft)
   .attr("y",50)
   .attr("height",40)
   .attr("fill", "#fdbf11")
   .attr("width", barX(US_MEAL))
 
+barsSvg.append("text")
+  .attr("class","barCat")
+  .attr("x",marginLeft - 10)
+  .attr("y",16)
+  .attr("text-anchor","end")
+  .text("SNAP")
 
-function arcTween(a) {
-  var i = d3.interpolate(this._current, a);
-  this._current = i(0);
-  return function(t) {
-    return piePath(i(t));
-  };
-}
+barsSvg.append("text")
+  .attr("class","barCat")
+  .attr("x",marginLeft - 10)
+  .attr("y",31)
+  .attr("text-anchor","end")
+  .text("benefit")
+
+
+barsSvg.append("text")
+  .attr("class","barCat")
+  .attr("x",marginLeft - 10)
+  .attr("y",16+50)
+  .attr("text-anchor","end")
+  .text("Average")
+
+barsSvg.append("text")
+  .attr("class","barCat")
+  .attr("x",marginLeft - 10)
+  .attr("y",31+50)
+  .attr("text-anchor","end")
+  .text("meal cost")
+
+barsSvg.append("text")
+  .attr("class","barVal snap")
+  .attr("x",barX(SNAP_COST) + 7 + marginLeft)
+  .attr("y",25)
+  .attr("text-anchor","start")
+  .text(DOLLARS(SNAP_COST))
+
+barsSvg.append("text")
+  .attr("class","barVal meal")
+  .attr("x",barX(US_MEAL) + 7 + marginLeft)
+  .attr("y",25+50)
+  .attr("text-anchor","start")
+  .text(DOLLARS(US_MEAL))
+
 
 
 function restoreNational(){
+  d3.selectAll(".clicked").classed("clicked",false)
   d3.select("#tt-dollars").text(DOLLARS(US_MEAL))
-  d3.select("#tt-percent").text(PERCENT(US_RATIO))
+  d3.select("#tt-percent").text(PERCENT(US_RATIO) + " more")
   d3.select("#countyLabel").text("National Average")
+  d3.select(".barVal.meal")
+    .transition()
+    .attr("x",barX(US_MEAL) + 7 + marginLeft)
+    .text(DOLLARS(US_MEAL))
+
   d3.select("#costRect")
     .transition()
     .attr("width", barX(US_MEAL))
-  // slice
-  //   .data(pie([{"ratio": 1.0 - US_RATIO,"fill":"empty"},{"ratio": US_RATIO,"fill":"chart"}]))
-  //   .transition().duration(400).attrTween("d", arcTween)
-  //     .attr("fill", function(c) { return (c.data.fill == "empty") ? "#d2d2d2" : colorScale(1 - c.data.ratio) });
-
-  // d3.selectAll(".pieLabel")
-  //   .data(pie([{"ratio": 1 - US_RATIO,"fill":"empty"},{"ratio": US_RATIO,"fill":"chart"}]))
-  //   .text(function(c){ return (c.data.fill == "chart") ? PERCENT(c.data.ratio) : ""})
-
 }
 
 restoreNational();
@@ -199,9 +200,8 @@ d3.json("data/data.json", function(error, us) {
   if (error) throw error;
 
   var g = mapSvg.append("g")
-  
+
     g.attr("class", "counties")
-    // .attr("transform", "translate(0," + legend_height + ")")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.counties).features)
     .enter().append("path")
@@ -226,91 +226,86 @@ d3.json("data/data.json", function(error, us) {
       })
       .on("mouseover", function(d){
 
-        var ratio = (+d.properties.cost - SNAP_COST)/SNAP_COST
-
         d3.select(this)
           .classed("mouseover", true)
 
-        d3.select("#tt-percent")
-          .text(PERCENT(ratio))
-
-        d3.select("#tt-dollars")
-          .text(DOLLARS(+d.properties.cost))
-
-
-        d3.select("#countyLabel")
-          .text(d.properties.label)
-
-        // slice
-        //   .data(pie([{"ratio": 1.0 - ratio,"fill":"empty"},{"ratio": ratio,"fill":"chart"}]))
-        //   .transition().duration(400).attrTween("d", arcTween)
-        //     .attr("fill", function(c) { return (c.data.fill == "empty") ? "#d2d2d2" : colorScale(1 - c.data.ratio) });
-
-        // d3.selectAll(".pieLabel")
-        //   .data(pie([{"ratio": 1 - ratio,"fill":"empty"},{"ratio": ratio,"fill":"chart"}]))
-        //   .text(function(c){ return (c.data.fill == "chart") ? PERCENT(1 - c.data.ratio) : ""})
-        d3.select("#costRect")
-          .transition()
-          .attr("width", barX(+d.properties.cost))
+          mouseover(d)
 
       })
-      .on("mouseout", function(d){
-          restoreNational();
-          d3.select(this)
-            .classed("mouseover", false)
+      .on("mouseout", function(c){
+          if(d3.selectAll(".clicked").nodes().length != 0){
+            var d = d3.select(".clicked").datum()
+            d3.select(this)
+              .classed("mouseover", false)
+            mouseover(d)
+          }else{
+            restoreNational();
+            d3.select(this)
+              .classed("mouseover", false)
+          }
       })
       .on("click", clicked)
 
             
 
 
-  g.append("path")
-      .attr("class", "county-borders")
-      .attr("d", path(topojson.mesh(us, us.objects.counties, function(a, b) { return a !== b; })))
+g.append("path")
+    .attr("class", "county-borders")
+    .attr("d", path(topojson.mesh(us, us.objects.counties, function(a, b) { return a !== b; })))
 
-  g.append("path")
-      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-      .attr("class", "states")
-      .attr("d", path)
+g.append("path")
+    .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+    .attr("class", "states")
+    .attr("d", path)
 
+var noteWidth = 140;
+var zoomOut = mapSvg.append("g")
+  .attr("transform", "translate(" + (map_width - noteWidth) + "," + (map_height + 50) + ")")
+  .style("cursor","pointer")
+  .on("click", reset)
 
+zoomOut.append("rect")
+  .attr("fill","rgba(255,255,255,.7)")
+  .attr("x",0)
+  .attr("y",0)
+  .attr("width",noteWidth)
+  .attr("height",30)
+zoomOut.append("text")
+  .attr("x", noteWidth/2)
+  .attr("y", 20)
+  .attr("id", "zoomOut")
+  .attr("text-anchor","middle")
+  .text("Reset to National")
 
+function mouseover(d){
+    var ratio = (+d.properties.cost - SNAP_COST)/SNAP_COST
 
-
-// function clicked(c) {
-//   console.log(d, us.objects.states)
-//   var st = c.id.substring(0,2),
-//     state = topojson.feature(us, us.objects.states).features.filter(function(s){ return s.id == st})[0]
-// var d = state;
-//   var x, y, k;
-
-//   if (d && centered !== d) {
-//     var centroid = path.centroid(d);
-//     x = centroid[0];
-//     y = centroid[1];
-//     k = 4;
-//     centered = d;
-//   } else {
-//     x = width / 2;
-//     y = height / 2;
-//     k = 1;
-//     centered = null;
-//   }
-
-//   g.selectAll("path")
-//       .classed("active", centered && function(d) { return d === centered; });
-
-//   g.transition()
-//       .duration(750)
-//       .attr("transform", "translate(" + map_width / 2 + "," + map_height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
-//       .style("stroke-width", 1.5 / k + "px");
-// }
+    d3.select("#tt-percent").text(function(){
+      var moreLess = (ratio < 0) ? " less" : " more"
+      return PERCENT(Math.abs(ratio)) + moreLess;
+    })
+    d3.select("#tt-dollars")
+      .text(DOLLARS(+d.properties.cost))
 
 
+    d3.select("#countyLabel")
+      .text(d.properties.label)
 
+    d3.select("#costRect")
+      .transition()
+      .attr("width", barX(+d.properties.cost))
+
+    d3.select(".barVal.meal")
+      .transition()
+      .attr("x",barX(+d.properties.cost) + 7 + marginLeft)
+      .text(DOLLARS(+d.properties.cost))
+}
 function clicked(c) {
+  var clicked = d3.select(this).classed("clicked")
+  d3.selectAll(".clicked").classed("clicked", false)
+
+  d3.select(this).classed("clicked", !clicked)
   var st = c.id.substring(0,2)
-  if (active == st){ return reset() }
 
   var d = topojson.feature(us, us.objects.states).features.filter(function(s){ return s.id == st})[0]
 
@@ -321,11 +316,11 @@ function clicked(c) {
     .style("opacity",1)
     .style("stroke-opacity",1)
 
-
-  
-
   active = st;
 
+  zoomOut
+    .transition()
+    .attr("transform", "translate(" + (map_width - noteWidth) + "," + (map_height - 30) + ")")
 
   var bounds = path.bounds(d),
       dx = bounds[1][0] - bounds[0][0],
@@ -342,11 +337,17 @@ function clicked(c) {
 }
 
 function reset() {
+  restoreNational();
+
   d3.selectAll(".countyPath").transition()
     .style("opacity",1)
     .style("stroke-opacity",1)
   active = ""
-  
+
+  zoomOut
+    .transition()
+    .attr("transform", "translate(" + (map_width - noteWidth) + "," + (map_height + 50) + ")")
+
 
   g.transition()
       .duration(750)
