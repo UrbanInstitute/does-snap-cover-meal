@@ -5,13 +5,7 @@ var DOLLARS = d3.format("$.2f")
 
 
 
-var bars_width = 320;
-var bars_height = 100;
 
-var map_width = 900-bars_width;
-var legend_height = 80;
-var map_height = map_width * (600/960) + legend_height;
-var active = ""
 
 
 function scale (scaleFactor) {
@@ -24,13 +18,25 @@ function scale (scaleFactor) {
 
 
 
+function drawGraphic(cw){
+var MOBILE = (cw < 900);
+var bars_width = (MOBILE) ? cw - 50 : 320;
+var bars_height = 100;
 
-function drawGraphic(){
+var map_width = (MOBILE) ? cw - 50 : cw -50-bars_width;
+var legend_height = 80;
+var map_height = map_width * (600/960) + legend_height;
+var active = ""
+
 d3.selectAll("svg").remove()
 d3.selectAll(".toRemove").remove()
 var path = d3.geoPath().projection(scale(map_width/960));
 
-var legendSvg = d3.select("#map").append("svg")
+
+
+var legendSvg = d3.select("#map")
+.classed("mobile",MOBILE)
+.append("svg")
   .attr("width", map_width)
   .attr("height", legend_height)
 
@@ -87,22 +93,24 @@ for (var i = 0; i < breaks.length; i++){
     .text(PERCENT(breaks[i]))
 }
 
-
+var bHeight = (MOBILE) ? bars_height : map_height + legend_height;
 d3.select("#bars")
-  .style("height", (map_height + legend_height) + "px")
+  .classed("mobile",MOBILE)
+  .style("height", bHeight + "px")
   .style("width", bars_width)
 
 d3.select("#map")
   .style("height", (map_height + legend_height) + "px")
   .style("width", map_width)
 
+var mTop = (MOBILE) ? -50 : legend_height;
 d3.select("#bars").append("div")
   .style("width", bars_width + "px")
   .style("height", "40px")
   .attr("id", "countyLabel")
   .attr("class","toRemove")
   .text("National Average")
-  .style("margin-top", legend_height + "px")
+  .style("margin-top", mTop + "px")
 
 var barsSvg = d3.select("#bars").append("svg")
   .attr("width", bars_width)
@@ -360,4 +368,4 @@ function reset() {
 
 });
 }
-drawGraphic() 
+var pymChild = new pym.Child({ renderCallback: drawGraphic });

@@ -1,7 +1,9 @@
 html, body{
 	font-family: Lato;
 }
-
+body{
+	display: inline-block;
+}
 
 .county-borders {
   fill: none;
