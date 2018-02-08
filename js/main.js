@@ -123,7 +123,7 @@ d3.select("#bars").append("div")
 
 
 var US_RATIO = (US_MEAL - SNAP_COST) / SNAP_COST
-var marginLeft = 70,
+var marginLeft = 100,
     marginRight = 45
 var barX = d3.scaleLinear().domain([4.4,0]).range([bars_width-marginLeft-marginRight,0])
 
@@ -147,14 +147,14 @@ barsSvg.append("text")
   .attr("x",marginLeft - 10)
   .attr("y",16)
   .attr("text-anchor","end")
-  .text("SNAP")
+  .text("SNAP benefit")
 
 barsSvg.append("text")
   .attr("class","barCat")
   .attr("x",marginLeft - 10)
   .attr("y",31)
   .attr("text-anchor","end")
-  .text("benefit")
+  .text("per meal")
 
 
 barsSvg.append("text")
