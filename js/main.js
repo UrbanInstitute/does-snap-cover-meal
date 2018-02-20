@@ -1,5 +1,5 @@
 var SNAP_COST = 1.86;
-var US_MEAL = 2.29;
+var US_MEAL = 2.36;
 var PERCENT = d3.format(".0%")
 var DOLLARS = d3.format("$.2f")
 
