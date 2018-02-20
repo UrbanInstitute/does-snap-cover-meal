@@ -5,6 +5,16 @@ body{
 	display: inline-block;
 }
 
+.urban-logo-text{
+	font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-align: right;
+    position: absolute;
+    bottom: 40px;
+    left: 20px;
+}
 .county-borders {
   fill: none;
   stroke: none;
@@ -77,4 +87,10 @@ body{
 #tt-dollars{
 	font-weight: bold;
 	color: #1696d2;
+}
+@media(max-width: 900px){
+	.urban-logo-text{
+	    bottom: 0px;
+		right: 30px;
+	}
 }
