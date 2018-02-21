@@ -93,4 +93,7 @@ body{
 	    bottom: 0px;
 		right: 30px;
 	}
+	#bars{
+		margin-top: 60px;
+	}
 }

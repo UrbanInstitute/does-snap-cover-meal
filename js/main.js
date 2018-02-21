@@ -93,7 +93,7 @@ for (var i = 0; i < breaks.length; i++){
     .text(PERCENT(breaks[i]))
 }
 
-var bHeight = (MOBILE) ? bars_height : map_height + legend_height;
+var bHeight = (MOBILE) ? bars_height + 100: map_height + legend_height;
 d3.select("#bars")
   .classed("mobile",MOBILE)
   .style("height", bHeight + "px")
