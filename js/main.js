@@ -191,7 +191,7 @@ function restoreNational(){
   d3.selectAll(".clicked").classed("clicked",false)
   d3.select("#tt-dollars").text(DOLLARS(US_MEAL))
   d3.select("#tt-percent").text(PERCENT(US_RATIO) + " more")
-  d3.select("#countyLabel").text("National Average")
+  d3.select("#countyLabel").text("National average")
   d3.select(".barVal.meal")
     .transition()
     .attr("x",barX(US_MEAL) + 7 + marginLeft)
