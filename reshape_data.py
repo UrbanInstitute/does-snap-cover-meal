@@ -12,15 +12,16 @@ sourceDict = json.load(open("data/source/source_json.json"))
 
 head = next(cr)
 for row in cr:
-	oldFips = row[0]
 	state = row[1]
 	label = row[2]
-	cost = row[3]
+	cost = row[7]
+	snap = row[5]
+	snap15 = row[6]
 
 	stateFips = FIPS[state]
-	countyFips = oldFips[-3:]
-	fips = stateFips + countyFips
-
+	countyFips = row[0]
+	fips = countyFips.zfill(5)
+	print(fips)
 	# cw.writerow([fips, label, cost])
 	for o in sourceDict["objects"]["counties"]["geometries"]:
 		if o["id"] == fips:
@@ -28,6 +29,8 @@ for row in cr:
 			o["properties"] = {}
 			o["properties"]["label"] = label
 			o["properties"]["cost"] = cost
+			o["properties"]["snap"] = snap
+			o["properties"]["snap15"] = snap15
 
 # print sourceDict["objects"]["counties"]["geometries"]
 

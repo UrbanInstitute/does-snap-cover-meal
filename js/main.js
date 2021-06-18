@@ -1,5 +1,6 @@
-var SNAP_COST = 1.86;
-var US_MEAL = 2.36;
+var US_SNAP_COST = 1.00;
+var US_SNAP_COST15 = 1.15
+var US_MEAL = 2.00;
 var PERCENT = d3.format(".0%")
 var DOLLARS = d3.format("$.2f")
 
@@ -16,6 +17,9 @@ function scale (scaleFactor) {
     });
 }
 
+function getSnapType(){
+  return d3.select("input[type='checkbox']").property("checked") ? "snap15" : "snap"
+}
 
 
 function drawGraphic(cw){
@@ -46,8 +50,8 @@ var mapSvg = d3.select("#map").append("svg")
   .attr("height", map_height)
 
 
-var colors =["#fff2cf","#cfe8f3","#a2d4ec","#73bfe2","#46abdb","#1696d2","#12719e"]
-var breaks = [0,.1,.2,.3,.4,.5,1]
+var colors =["#fccb41", "#fdd870", "#fce39e", "#fff2cf","#cfe8f3","#a2d4ec","#73bfe2","#46abdb","#1696d2","#12719e"]
+var breaks = [-.3,-.2,-.1, 0,.1,.2,.3,.4,.5,2.2]
 var colorScale = d3.scaleThreshold();    
 
 colorScale.range(colors);
@@ -59,7 +63,7 @@ legendSvg.append("text")
   .attr("id", "legendTitle")
   .text("Gap between SNAP benefit and meal cost")
 
-var keyW = 40
+var keyW = 30
 var keyH = 20;
 var legend = legendSvg.append("g")
   .attr("transform", "translate(15, 30)")
@@ -68,7 +72,7 @@ legend.append("text")
   .attr("dx", 0)
   .attr("text-anchor", "middle")
   .attr("dy", keyH + 13)
-  .text(PERCENT(-.1))
+  .text(PERCENT(-.5))
 for (var i = 0; i < breaks.length; i++){
   legend.append("rect")
     .attr("x", i*keyW)
@@ -119,20 +123,22 @@ var barsSvg = d3.select("#bars").append("svg")
 d3.select("#bars").append("div")
   .attr("id", "tt-text")
   .attr("class","toRemove")
-  .html("The average cost of a meal is <span id = \"tt-dollars\">" + DOLLARS(US_MEAL) + "</span>,<br/><span id = \"tt-percent\">" + PERCENT(1 - SNAP_COST/ US_MEAL) + " more</span> than the SNAP benefit.")
+  .html("The average cost of a meal is <span id = \"tt-dollars\">" + DOLLARS(US_MEAL) + "</span>,<br/><span id = \"tt-percent\">" + PERCENT(1 - US_SNAP_COST/ US_MEAL) + " more</span> than the SNAP benefit.")
 
 
-var US_RATIO = (US_MEAL - SNAP_COST) / SNAP_COST
+var US_RATIO = (US_MEAL - US_SNAP_COST) / US_SNAP_COST
+var US_RATIO15 = (US_MEAL - US_SNAP_COST15) / US_SNAP_COST15
 var marginLeft = 100,
     marginRight = 45
-var barX = d3.scaleLinear().domain([4.4,0]).range([bars_width-marginLeft-marginRight,0])
+var barX = d3.scaleLinear().domain([6.5,0]).range([bars_width-marginLeft-marginRight,0])
 
 var b1 = barsSvg.append("rect")
+  .attr("id", "snapRect")
   .attr("x", marginLeft)
   .attr("y",0)
   .attr("height",40)
   .attr("fill", "#d2d2d2")
-  .attr("width", barX(SNAP_COST))
+  .attr("width", barX(US_SNAP_COST))
 
 var b2 = barsSvg.append("rect")
   .attr("id", "costRect")
@@ -173,10 +179,10 @@ barsSvg.append("text")
 
 barsSvg.append("text")
   .attr("class","barVal snap")
-  .attr("x",barX(SNAP_COST) + 7 + marginLeft)
+  .attr("x",barX(US_SNAP_COST) + 7 + marginLeft)
   .attr("y",25)
   .attr("text-anchor","start")
-  .text(DOLLARS(SNAP_COST))
+  .text(DOLLARS(US_SNAP_COST))
 
 barsSvg.append("text")
   .attr("class","barVal meal")
@@ -188,18 +194,29 @@ barsSvg.append("text")
 
 
 function restoreNational(){
+  var natlSnap = (getSnapType() == "snap") ? US_SNAP_COST : US_SNAP_COST15,
+      natlRatio = (getSnapType() == "snap") ? US_RATIO : US_RATIO15;
   d3.selectAll(".clicked").classed("clicked",false)
   d3.select("#tt-dollars").text(DOLLARS(US_MEAL))
-  d3.select("#tt-percent").text(PERCENT(US_RATIO) + " more")
+  d3.select("#tt-percent").text(PERCENT(natlRatio) + " more")
   d3.select("#countyLabel").text("National average")
   d3.select(".barVal.meal")
     .transition()
     .attr("x",barX(US_MEAL) + 7 + marginLeft)
     .text(DOLLARS(US_MEAL))
 
+  d3.select("#snapRect")
+    .transition()
+    .attr("width", barX(natlSnap))
+
   d3.select("#costRect")
     .transition()
     .attr("width", barX(US_MEAL))
+
+  d3.select(".barVal.snap")
+    .transition()
+    .attr("x",barX(natlSnap) + 7 + marginLeft)
+    .text(DOLLARS(natlSnap))
 }
 
 restoreNational();
@@ -215,8 +232,10 @@ d3.json("data/data.json", function(error, us) {
     .enter().append("path")
       .attr("d", path)
       .attr("class", function(d){
-        var cost = +d.properties.cost;
-        var color = colorScale(1 - SNAP_COST/cost)
+        var cost = +d.properties.cost,
+            snap = +d.properties.snap,
+            snap15 = +d.properties.snap15
+        var color = colorScale(1 - snap/cost)
         var st = d.id.substring(0,2)
 
         return "countyPath q-" + colors.indexOf(color) + " st-" + st
@@ -225,12 +244,17 @@ d3.json("data/data.json", function(error, us) {
         return d.properties.hasOwnProperty("cost") ? "block" : "none"
       })
       .attr("fill", function(d){
-        var cost = +d.properties.cost;
-        return colorScale(1 - SNAP_COST/cost)
+        // console.log(d)
+        var cost = +d.properties.cost,
+            snap = +d.properties.snap,
+            snap15 = +d.properties.snap15
+        return colorScale(1 - snap/cost)
       })
       .attr("stroke", function(d){
-        var cost = +d.properties.cost;
-        return colorScale(1 - SNAP_COST/cost)
+        var cost = +d.properties.cost,
+            snap = +d.properties.snap,
+            snap15 = +d.properties.snap15
+        return colorScale(1 - snap/cost)
       })
       .on("mouseover", function(d){
 
@@ -286,8 +310,8 @@ zoomOut.append("text")
   .text("Reset to National")
 
 function mouseover(d){
-    var ratio = (+d.properties.cost - SNAP_COST)/SNAP_COST
-
+    var ratio = (+d.properties.cost - +d["properties"][getSnapType()])/+d["properties"][getSnapType()]
+console.log(ratio)
     d3.select("#tt-percent").text(function(){
       var moreLess = (ratio < 0) ? " less" : " more"
       return PERCENT(Math.abs(ratio)) + moreLess;
@@ -303,10 +327,18 @@ function mouseover(d){
       .transition()
       .attr("width", barX(+d.properties.cost))
 
+    d3.select("#snapRect")
+      .transition()
+      .attr("width", barX(+d["properties"][getSnapType()]))
+
     d3.select(".barVal.meal")
       .transition()
       .attr("x",barX(+d.properties.cost) + 7 + marginLeft)
       .text(DOLLARS(+d.properties.cost))
+    d3.select(".barVal.snap")
+      .transition()
+      .attr("x",barX(+d["properties"][getSnapType()]) + 7 + marginLeft)
+      .text(DOLLARS(+d["properties"][getSnapType()]))
 }
 function clicked(c) {
   var clicked = d3.select(this).classed("clicked")
@@ -369,9 +401,39 @@ function reset() {
       .attr("transform", "");
 }
 
+function updateGraphic(snapType){
+  console.log(snapType)
+
+      d3.selectAll(".countyPath")
+      .transition()
+      .attr("fill", function(d){
+        // console.log(d)
+
+        return colorScale(1 - +d["properties"][snapType]/+d.properties.cost)
+      })
+      .attr("stroke", function(d){
+        return colorScale(1 - +d["properties"][snapType]/+d.properties.cost)
+      })
+
+      if(d3.selectAll(".clicked").nodes().length != 0){
+        var d = d3.select(".clicked").datum()
+        mouseover(d)
+      }else{
+        restoreNational();
+      }
+
+}
+
+    d3.select("input[type='checkbox']").on("change", function() {
+        var snapType = (this.checked) ? "snap15" : "snap"
+
+        updateGraphic(snapType)
+    });
 
 
 
 });
 }
 var pymChild = new pym.Child({ renderCallback: drawGraphic });
+
+
