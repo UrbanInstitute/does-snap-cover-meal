@@ -50,8 +50,8 @@ var mapSvg = d3.select("#map").append("svg")
   .attr("height", map_height)
 
 
-var colors =["#fccb41", "#fdd870", "#fce39e", "#fff2cf","#cfe8f3","#a2d4ec","#73bfe2","#46abdb","#1696d2","#12719e"]
-var breaks = [-.3,-.2,-.1, 0,.1,.2,.3,.4,.5,2.2]
+var colors =["#e88e2d","#fdbf11","#fccb41", "#fdd870", "#fce39e", "#fff2cf","#cfe8f3","#a2d4ec","#73bfe2","#46abdb","#1696d2","#12719e"]
+var breaks = [-.5,-.4,-.3,-.2,-.1, 0,.1,.2,.3,.4,.5,.65]
 var colorScale = d3.scaleThreshold();    
 
 colorScale.range(colors);
@@ -72,7 +72,7 @@ legend.append("text")
   .attr("dx", 0)
   .attr("text-anchor", "middle")
   .attr("dy", keyH + 13)
-  .text(PERCENT(-.5))
+  .text(PERCENT(-.75))
 for (var i = 0; i < breaks.length; i++){
   legend.append("rect")
     .attr("x", i*keyW)
@@ -257,7 +257,6 @@ d3.json("data/data.json", function(error, us) {
         return colorScale(1 - snap/cost)
       })
       .on("mouseover", function(d){
-
         d3.select(this)
           .classed("mouseover", true)
 
@@ -310,7 +309,7 @@ zoomOut.append("text")
   .text("Reset to National")
 
 function mouseover(d){
-    var ratio = (+d.properties.cost - +d["properties"][getSnapType()])/+d["properties"][getSnapType()]
+    var ratio = (1 - +d["properties"][getSnapType()]/+d["properties"]["cost"])
 console.log(ratio)
     d3.select("#tt-percent").text(function(){
       var moreLess = (ratio < 0) ? " less" : " more"
@@ -405,6 +404,13 @@ function updateGraphic(snapType){
   console.log(snapType)
 
       d3.selectAll(".countyPath")
+      .attr("class", function(d){
+
+        var color = colorScale(1 - +d["properties"][snapType]/+d.properties.cost)
+        var st = d.id.substring(0,2)
+
+        return "countyPath q-" + colors.indexOf(color) + " st-" + st
+      })
       .transition()
       .attr("fill", function(d){
         // console.log(d)
