@@ -185,7 +185,7 @@ input:checked + .slider:before {
 
 .toggleGroup > p {
     font-size: 1.125rem;
-    border-bottom: 1px solid #bcbcbc;
+    border-bottom: 1px solid #1696d2;
 }
 
 .toggle {

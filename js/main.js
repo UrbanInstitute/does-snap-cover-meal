@@ -1,6 +1,6 @@
-var US_SNAP_COST = 1.00;
-var US_SNAP_COST15 = 1.15
-var US_MEAL = 2.00;
+var US_SNAP_COST = 1.98;
+var US_SNAP_COST15 = 2.28;
+var US_MEAL = 2.14;
 var PERCENT = d3.format(".0%")
 var DOLLARS = d3.format("$.2f")
 
@@ -198,7 +198,9 @@ function restoreNational(){
       natlRatio = (getSnapType() == "snap") ? US_RATIO : US_RATIO15;
   d3.selectAll(".clicked").classed("clicked",false)
   d3.select("#tt-dollars").text(DOLLARS(US_MEAL))
-  d3.select("#tt-percent").text(PERCENT(natlRatio) + " more")
+  d3.select("#tt-percent").text(function(){
+    return (getSnapType() == "snap") ? PERCENT(natlRatio) + " more" : PERCENT(Math.abs(natlRatio)) + " less"
+  })
   d3.select("#countyLabel").text("National average")
   d3.select(".barVal.meal")
     .transition()
