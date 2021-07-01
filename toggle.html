@@ -1,0 +1,48 @@
+<style type="text/css">
+.toggle.on {
+    background-position: -41px 0px;
+        background-color: #1696d2;
+
+}
+.toggle.off {
+    background-position: .5px 0px;
+    background-color: #9c9c9c;
+}
+.toggle {
+    background-image: url(toggle-bg.png);
+    background-repeat: no-repeat;
+    /* width: 55px; */
+    /* height: 18px; */
+    /* border-radius: 10px; */
+    width: 72px;
+    height: 30px;
+    border-radius: 20px;
+    margin-left: 60px;
+    display: inline-block;
+    background-size: cover;
+    cursor: pointer;
+    margin-right: 9px;
+    position: relative;
+    -webkit-transition: background-position .1s ease-in;
+    -moz-transition: background-position .1s ease-in;
+    -o-transition: background-position .1s ease-in;
+    transition: background-position .1s ease-in;
+}
+</style>
+
+
+<div class = 'toggle off'></div>
+
+<script src="js/lib/d3.v4.min.js"></script>
+
+<script>
+    d3.select(".toggle").on("click", function(){
+        if(d3.select(this).classed("on")){
+            d3.select(this).classed("on", false)
+            d3.select(this).classed("off", true)
+        }else{
+            d3.select(this).classed("on", true)
+            d3.select(this).classed("off", false)
+        }
+    })
+</script>

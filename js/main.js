@@ -18,12 +18,14 @@ function scale (scaleFactor) {
 }
 
 function getSnapType(){
-  return d3.select("input[type='checkbox']").property("checked") ? "snap15" : "snap"
+  return d3.select(".toggle").classed("on") ? "snap15" : "snap"
 }
 
 
 function drawGraphic(cw){
 var MOBILE = (cw < 900);
+var PHONE = (cw < 520);
+console.log(PHONE)
 var bars_width = (MOBILE) ? cw - 50 : 320;
 var bars_height = 100;
 
@@ -46,6 +48,7 @@ var legendSvg = d3.select("#map")
 
 
 var mapSvg = d3.select("#map").append("svg")
+  .attr("id", "mapSvg")
   .attr("width", map_width)
   .attr("height", map_height)
 
@@ -63,7 +66,7 @@ legendSvg.append("text")
   .attr("id", "legendTitle")
   .text("Gap between SNAP benefit and meal cost")
 
-var keyW = 30
+var keyW = (PHONE) ? 20 : 30;
 var keyH = 20;
 var legend = legendSvg.append("g")
   .attr("transform", "translate(15, 30)")
@@ -73,6 +76,7 @@ legend.append("text")
   .attr("text-anchor", "middle")
   .attr("dy", keyH + 13)
   .text(PERCENT(-.75))
+
 for (var i = 0; i < breaks.length; i++){
   legend.append("rect")
     .attr("x", i*keyW)
@@ -95,6 +99,11 @@ for (var i = 0; i < breaks.length; i++){
     .attr("text-anchor", "middle")
     .attr("dy", keyH + 13)
     .text(PERCENT(breaks[i]))
+  .style("opacity", function(){
+    console.log(i)
+    if(!PHONE) return 1
+    else return(i%2 == 1) ? 1 : 0;
+  })
 }
 
 var bHeight = (MOBILE) ? bars_height + 100: map_height + legend_height;
@@ -432,11 +441,22 @@ function updateGraphic(snapType){
 
 }
 
-    d3.select("input[type='checkbox']").on("change", function() {
-        var snapType = (this.checked) ? "snap15" : "snap"
 
+    d3.select(".toggle").on("click", function(){
+      var snapType;
+        if(d3.select(this).classed("on")){
+            d3.select(this).classed("on", false)
+            d3.select(this).classed("off", true)
+            snapType = "snap"
+
+        }else{
+            d3.select(this).classed("on", true)
+            d3.select(this).classed("off", false)
+            snapType = "snap15"
+        }
         updateGraphic(snapType)
-    });
+
+    })
 
 
 

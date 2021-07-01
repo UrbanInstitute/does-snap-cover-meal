@@ -188,7 +188,7 @@ input:checked + .slider:before {
     border-bottom: 1px solid #1696d2;
 }
 
-.toggle {
+.toggleContainer {
     position: absolute;
     top: 4px;
     left: 416px;
@@ -197,4 +197,44 @@ input:checked + .slider:before {
 .toggleLabel {
     display: block;
     margin-bottom: 0.5em;
+}
+
+
+
+
+
+.toggle.on {
+    background-position: -41px 0px;
+        background-color: #1696d2;
+
+}
+.toggle.off {
+    background-position: .5px 0px;
+    background-color: #9c9c9c;
+}
+.toggle {
+    background-image: url(../toggle-bg.png);
+    background-repeat: no-repeat;
+    width: 72px;
+    height: 30px;
+    border-radius: 20px;
+    display: inline-block;
+    background-size: cover;
+    cursor: pointer;
+    position: relative;
+    -webkit-transition: background-position .1s ease-in;
+    -moz-transition: background-position .1s ease-in;
+    -o-transition: background-position .1s ease-in;
+    transition: background-position .1s ease-in;
+}
+
+
+@media(max-width: 520px){
+    .toggleContainer {
+        top: 72px;
+        left: calc(50% - 62px);
+    }
+    #mapSvg{
+        margin-top: 50px;
+    }
 }
