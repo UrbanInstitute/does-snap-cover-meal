@@ -8,7 +8,11 @@
 <div id ="urbanGraph-snapMap"></div>
 <script type="text/javascript" src="https://apps.urban.org/features/snap-and-food-costs/js/lib/pym.min.js"></script>
 <script>
-    var pym = new pym.Parent('urbanGraph-snapMap', 'https://apps.urban.org/features/snap-and-food-costs/child.html', {});
+    // absolute URL should be used for production embed code
+    // var pym = new pym.Parent('urbanGraph-snapMap', 'https://apps.urban.org/features/snap-and-food-costs/child.html', {});
+
+    // relative URL in place for testing, since the map is not live at the apps URL
+    var pym = new pym.Parent('urbanGraph-snapMap', 'child.html', {});
  </script>
 </body>
 </html>
