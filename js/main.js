@@ -208,7 +208,7 @@ function restoreNational(){
   d3.selectAll(".clicked").classed("clicked",false)
   d3.select("#tt-dollars").text(DOLLARS(US_MEAL))
   d3.select("#tt-percent").text(function(){
-    return (getSnapType() == "snap") ? PERCENT(natlRatio) + " more" : PERCENT(Math.abs(natlRatio)) + " less"
+    return (getSnapType() == "snap") ? PERCENT(natlRatio) + " more" : PERCENT(Math.abs(natlRatio)) + " more"
   })
   d3.select("#countyLabel").text("National average")
   d3.select(".barVal.meal")
