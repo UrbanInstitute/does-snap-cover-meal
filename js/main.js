@@ -64,7 +64,7 @@ legendSvg.append("text")
   .attr("x", 15)
   .attr("y", 20)
   .attr("id", "legendTitle")
-  .text("Gap between SNAP benefit and meal cost")
+  .text("Gap between SNAP benefit and meal cost in 2020")
 
 var keyW = (PHONE) ? 20 : 30;
 var keyH = 20;
