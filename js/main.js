@@ -18,7 +18,7 @@ function scale (scaleFactor) {
 }
 
 function getSnapType(){
-  return d3.select(".toggle").classed("on") ? "snap15" : "snap"
+  return d3.select(".toggle").classed("on") ? "snap21" : "snap"
 }
 
 
@@ -104,6 +104,20 @@ for (var i = 0; i < breaks.length; i++){
     if(!PHONE) return 1
     else return(i%2 == 1) ? 1 : 0;
   })
+}
+
+var ruccC = d3.select("#ruccContainer")
+for(var i = 1; i < 10; i++){
+ruccC.append("div")
+    .text(i)
+    .datum(i)
+    .on("mouseover", function(d){
+      d3.selectAll(".countyPath").classed("hide", true)
+      d3.selectAll(".countyPath.rucc-" + d).classed("hide", false)
+    })
+    .on("mouseout", function(d){
+      d3.selectAll(".countyPath").classed("hide", false)
+    })
 }
 
 var bHeight = (MOBILE) ? bars_height + 100: map_height + legend_height;
@@ -248,8 +262,9 @@ d3.json("data/data.json", function(error, us) {
             snap15 = +d.properties.snap15
         var color = colorScale(1 - snap/cost)
         var st = d.id.substring(0,2)
+        var rucc = d.properties.rucc
 
-        return "countyPath q-" + colors.indexOf(color) + " st-" + st
+        return "countyPath q-" + colors.indexOf(color) + " st-" + st + " rucc-" + rucc
       })
       .attr("display", function(d){
         return d.properties.hasOwnProperty("cost") ? "block" : "none"
@@ -419,8 +434,9 @@ function updateGraphic(snapType){
 
         var color = colorScale(1 - +d["properties"][snapType]/+d.properties.cost)
         var st = d.id.substring(0,2)
+        var rucc = d.properties.rucc
 
-        return "countyPath q-" + colors.indexOf(color) + " st-" + st
+        return "countyPath q-" + colors.indexOf(color) + " st-" + st + " rucc-" + rucc
       })
       .transition()
       .attr("fill", function(d){
@@ -442,7 +458,7 @@ function updateGraphic(snapType){
 }
 
 
-    d3.select(".toggle").on("click", function(){
+    d3.select(".toggleContainer.tc15 .toggle").on("click", function(){
       var snapType;
         if(d3.select(this).classed("on")){
             d3.select(this).classed("on", false)
@@ -452,7 +468,27 @@ function updateGraphic(snapType){
         }else{
             d3.select(this).classed("on", true)
             d3.select(this).classed("off", false)
+            d3.select(".toggleContainer.tc21 .toggle").classed("on", false)
+            d3.select(".toggleContainer.tc21 .toggle").classed("off", true)
             snapType = "snap15"
+        }
+        updateGraphic(snapType)
+
+    })
+
+    d3.select(".toggleContainer.tc21 .toggle").on("click", function(){
+      var snapType;
+        if(d3.select(this).classed("on")){
+            d3.select(this).classed("on", false)
+            d3.select(this).classed("off", true)
+            snapType = "snap"
+
+        }else{
+            d3.select(this).classed("on", true)
+            d3.select(this).classed("off", false)
+            d3.select(".toggleContainer.tc15 .toggle").classed("on", false)
+            d3.select(".toggleContainer.tc15 .toggle").classed("off", true)
+            snapType = "snap21"
         }
         updateGraphic(snapType)
 
