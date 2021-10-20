@@ -2,6 +2,7 @@
 <head>
   <link rel="stylesheet" href="css/main.css" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic,900" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" type="text/css" href="css/vendor/jquery-ui.css">
 
 </head>
 <body>
@@ -12,8 +13,13 @@
   <div id = "graphic">
     <!-- <div class = "snapButton button active">SNAP</div> -->
     <!-- <div class = "snapButton15 button">SNAP plus 15</div> -->
-
-                        <div class="toggleContainer tc15">
+    <h2>Gap between SNAP benefit and meal cost in 2020</h2>
+<select id = "scenarioMenu">
+  <option value = "snap21"><strong>21% increase</strong> (as of Oct. 2021)</option>
+  <option value = "snap15">15% increase (Dec. 2020–Sept. 2021)</option>
+  <option value = "snap">No increase (prior to Dec. 2020)</option>
+</select>
+<!--                         <div class="toggleContainer tc15">
                             <span class="toggleLabel">plus 15% increase</span>
                             <div class = 'toggle off t15'></div>
                         </div>
@@ -22,20 +28,27 @@
                             <span class="toggleLabel">plus 21% increase</span>
                             <div class = 'toggle off t21'></div>
                         </div>
-
+ -->
     <div id = "map"></div>
     <div id = "bars">
-      <div class="urban-logo-text"><span style="color: #1696d2">Urban</span> Institute</div>
     </div>
   </div>
 
   <div id = "ruccContainer">
+    <div id = "ruccTitle">Rural-Urban Continuum Codes</div>
+    <div id = "ruccInnerContainer">
+      <img src = "img/ruccLine.png">
+      <div id = "ruccLess">More rural</div>
+      <div id = "ruccMore">More urban</div>
+    </div>
   </div>
+  <div id = "notes"><strong>Note:</strong> Our analyses do not yet account for the 21 percent increase to the Thrifty Food Plan for Alaska and Hawaii. The US Department of Agriculture plans to announce adjustments for those states by the end of 2021.</div>
 
   <script type="text/javascript" src="js/lib/pym.min.js"></script>
   <script src="js/lib/d3.v4.min.js"></script>
   <script src="https://d3js.org/topojson.v3.min.js"></script>
   <script src="js/lib/jquery-1.11.3.min.js"></script>
+  <script src="js/lib/jquery-ui.min.js"></script>
   <script src="js/main.js"></script>  
 
 </body>
