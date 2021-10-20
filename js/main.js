@@ -1,5 +1,6 @@
 var US_SNAP_COST = 1.97;
 var US_SNAP_COST15 = 2.27;
+var US_SNAP_COST21 = 2.38;
 var US_MEAL = 2.41;
 var PERCENT = d3.format(".0%")
 var DOLLARS = d3.format("$.2f")
@@ -196,10 +197,11 @@ var barsSvg = d3.select("#bars").append("svg")
 d3.select("#bars").append("div")
   .attr("id", "tt-text")
   .attr("class","toRemove")
-  .html("A modestly priced meal costs <span id = \"tt-dollars\">" + DOLLARS(US_MEAL) + "</span>,<br/><span id = \"tt-percent\">" + PERCENT(1 - US_SNAP_COST/ US_MEAL) + " more</span> than the SNAP benefit.")
+  .html("A modestly priced meal costs <span id = \"tt-dollars\">" + DOLLARS(US_MEAL) + "</span>,<br/><span id = \"tt-percent\">" + PERCENT(1 - US_SNAP_COST21/ US_MEAL) + " more</span> than the SNAP benefit.")
 
 
 var US_RATIO = (US_MEAL - US_SNAP_COST) / US_SNAP_COST
+var US_RATIO21 = (US_MEAL - US_SNAP_COST21) / US_SNAP_COST21
 var US_RATIO15 = (US_MEAL - US_SNAP_COST15) / US_SNAP_COST15
 var marginLeft = 100,
     marginRight = 45
@@ -211,7 +213,7 @@ var b1 = barsSvg.append("rect")
   .attr("y",0)
   .attr("height",40)
   .attr("fill", "#000")
-  .attr("width", barX(US_SNAP_COST))
+  .attr("width", barX(US_SNAP_COST21))
 
 var b2 = barsSvg.append("rect")
   .attr("id", "costRect")
@@ -252,10 +254,10 @@ barsSvg.append("text")
 
 barsSvg.append("text")
   .attr("class","barVal snap")
-  .attr("x",barX(US_SNAP_COST) + 7 + marginLeft)
+  .attr("x",barX(US_SNAP_COST21) + 7 + marginLeft)
   .attr("y",25)
   .attr("text-anchor","start")
-  .text(DOLLARS(US_SNAP_COST))
+  .text(DOLLARS(US_SNAP_COST21))
 
 barsSvg.append("text")
   .attr("class","barVal meal")
@@ -267,8 +269,24 @@ barsSvg.append("text")
 
 
 function restoreNational(){
-  var natlSnap = (getSnapType() == "snap") ? US_SNAP_COST : US_SNAP_COST15,
-      natlRatio = (getSnapType() == "snap") ? US_RATIO : US_RATIO15;
+  // var natlSnap = (getSnapType() == "snap") ? US_SNAP_COST : US_SNAP_COST15,
+      // natlRatio = (getSnapType() == "snap") ? US_RATIO : US_RATIO21;
+  var natlSnap,
+      natlRatio,
+      snapType = getSnapType()
+
+  if(snapType == "snap"){
+    natlSnap = US_SNAP_COST
+    natlRatio = US_RATIO
+  }
+  else if(snapType == "snap15"){
+    natlSnap = US_SNAP_COST15
+    natlRatio = US_RATIO15
+  }
+  else if(snapType == "snap21"){
+    natlSnap = US_SNAP_COST21
+    natlRatio = US_RATIO21    
+  }
   d3.selectAll(".clicked").classed("clicked",false)
   d3.select("#tt-dollars").text(DOLLARS(US_MEAL))
   d3.select("#tt-percent").text(function(){
@@ -310,9 +328,8 @@ d3.json("data/data.json", function(error, us) {
       .attr("d", path)
       .attr("class", function(d){
         var cost = +d.properties.cost,
-            snap = +d.properties.snap,
-            snap15 = +d.properties.snap15
-        var color = colorScale(1 - snap/cost)
+            snap21 = +d.properties.snap21
+        var color = colorScale(1 - snap21/cost)
         var st = d.id.substring(0,2)
         var rucc = d.properties.rucc
 
@@ -324,17 +341,16 @@ d3.json("data/data.json", function(error, us) {
       .attr("fill", function(d){
         // console.log(d)
         var cost = +d.properties.cost,
-            snap = +d.properties.snap,
-            snap15 = +d.properties.snap15
-        return colorScale(1 - snap/cost)
+        snap21 = +d.properties.snap21
+        return colorScale(1 - snap21/cost)
       })
       .attr("stroke", function(d){
         var cost = +d.properties.cost,
-            snap = +d.properties.snap,
-            snap15 = +d.properties.snap15
-        return colorScale(1 - snap/cost)
+            snap21 = +d.properties.snap21
+        return colorScale(1 - snap21/cost)
       })
       .on("mouseover", function(d){
+        console.log(d)
         d3.select(this)
           .classed("mouseover", true)
           d3.select(".states").node().parentNode.appendChild(d3.select(".states").node())
@@ -462,7 +478,7 @@ function clicked(c) {
 
   zoomOut
     .transition()
-    .attr("transform", "translate(" + (map_width - noteWidth) + "," + (map_height - 30) + ")")
+    .attr("transform", "translate(" + (map_width - noteWidth) + "," + (map_height - 70) + ")")
 
   var bounds = path.bounds(d),
       dx = bounds[1][0] - bounds[0][0],
