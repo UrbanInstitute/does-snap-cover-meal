@@ -332,8 +332,9 @@ d3.json("data/data.json", function(error, us) {
         var color = colorScale(1 - snap21/cost)
         var st = d.id.substring(0,2)
         var rucc = d.properties.rucc
+        var disabled = (st == "02" || st == "15") ? " disabled" : ""
 
-        return "countyPath q-" + colors.indexOf(color) + " st-" + st + " rucc-" + rucc
+        return "countyPath q-" + colors.indexOf(color) + " st-" + st + " rucc-" + rucc + disabled
       })
       .attr("display", function(d){
         return d.properties.hasOwnProperty("cost") ? "block" : "none"
@@ -344,13 +345,13 @@ d3.json("data/data.json", function(error, us) {
         snap21 = +d.properties.snap21
         return colorScale(1 - snap21/cost)
       })
-      .attr("stroke", function(d){
-        var cost = +d.properties.cost,
-            snap21 = +d.properties.snap21
-        return colorScale(1 - snap21/cost)
-      })
+      // .attr("stroke", function(d){
+      //   var cost = +d.properties.cost,
+      //       snap21 = +d.properties.snap21
+      //   return colorScale(1 - snap21/cost)
+      // })
       .on("mouseover", function(d){
-        console.log(d)
+        // console.log(d)
         d3.select(this)
           .classed("mouseover", true)
           d3.select(".states").node().parentNode.appendChild(d3.select(".states").node())
@@ -377,11 +378,36 @@ d3.json("data/data.json", function(error, us) {
             restoreNational();
             d3.select(this)
               .classed("mouseover", false)
+              .style("stroke","white")
           }
       })
       .on("click", clicked)
 
-            
+
+var zoom = d3.zoom()
+  .on('zoom', function() {
+    g.attr('transform', d3.event.transform);
+  })
+
+// var zoom = d3.zoom()
+//       .scaleExtent([1, 8])
+//       .on('zoom', function() {
+//           d3.selectAll('path')
+//            .attr('transform', d3.event.transform)
+//           })
+
+g.call(zoom);
+
+
+
+d3.select('#zoom-in').on('click', function() {
+  zoom.scaleBy(g.transition().duration(750), 1.3);
+});
+
+d3.select('#zoom-out').on('click', function() {
+  zoom.scaleBy(g.transition().duration(750), 1 / 1.3);
+});
+
 
 
 g.append("path")
@@ -449,6 +475,10 @@ function mouseover(d){
     d3.select(".ruccLabelText span").text(d.properties.rucc)
     d3.select("#ruccPopup").html(RUCC_TEXT[+d.properties.rucc])
 }
+
+
+
+
 function clicked(c) {
   // console.log(this)
   var clicked = d3.select(this).classed("clicked")
@@ -464,34 +494,37 @@ function clicked(c) {
 
   var d = topojson.feature(us, us.objects.states).features.filter(function(s){ return s.id == st})[0]
 
-  d3.selectAll(".countyPath:not(.st-" + st + ")")
-    .classed("zoomed", false)
-    .transition()
-    .style("opacity",.4)
-    .style("stroke-opacity",0)
-  d3.selectAll(".countyPath.st-" + st)
-    .classed("zoomed", true)
-    .style("opacity",1)
-    .style("stroke-opacity",1)
+  // d3.selectAll(".countyPath:not(.st-" + st + ")")
+  //   .classed("zoomed", false)
+  //   .transition()
+  //   .style("opacity",.4)
+  //   .style("stroke-opacity",0)
+  // d3.selectAll(".countyPath.st-" + st)
+  //   .classed("zoomed", true)
+  //   .style("opacity",1)
+  //   .style("stroke-opacity",1)
 
-  active = st;
+  // active = st;
 
-  zoomOut
-    .transition()
-    .attr("transform", "translate(" + (map_width - noteWidth) + "," + (map_height - 70) + ")")
+  // zoomOut
+  //   .transition()
+  //   .attr("transform", "translate(" + (map_width - noteWidth) + "," + (map_height - 70) + ")")
 
-  var bounds = path.bounds(d),
-      dx = bounds[1][0] - bounds[0][0],
-      dy = bounds[1][1] - bounds[0][1],
-      x = (bounds[0][0] + bounds[1][0]) / 2,
-      y = (bounds[0][1] + bounds[1][1]) / 2,
-      scale = .9 / Math.max(dx / map_width, dy / map_height),
-      translate = [map_width / 2 - scale * x, map_height / 2 - scale * y];
+  // var bounds = path.bounds(d),
+  //     dx = bounds[1][0] - bounds[0][0],
+  //     dy = bounds[1][1] - bounds[0][1],
+  //     x = (bounds[0][0] + bounds[1][0]) / 2,
+  //     y = (bounds[0][1] + bounds[1][1]) / 2,
+  //     scale = .9 / Math.max(dx / map_width, dy / map_height),
+  //     translate = [map_width / 2 - scale * x, map_height / 2 - scale * y];
 
-  g.transition()
-      .duration(750)
-      .style("stroke-width", 1.5 / scale + "px")
-      .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+  // g
+  // .attr("transform", "")
+  // .transition()
+  //     .duration(750)
+  //     .style("stroke-width", 1.5 / scale + "px")
+  //     .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+      // .attr("transform", "");
 }
 
 function reset() {
@@ -512,8 +545,13 @@ function reset() {
 
   g.transition()
       .duration(750)
-      .style("stroke-width", "1.5px")
+      // .style("stroke-width", "1.5px")
       .attr("transform", "");
+
+  // zoom.transform(g, d3.zoomIdentity.translate(0,0).scale(map_width/960));
+
+
+
 }
 
 function updateGraphic(snapType){
@@ -526,8 +564,9 @@ function updateGraphic(snapType){
         var color = colorScale(1 - +d["properties"][snapType]/+d.properties.cost)
         var st = d.id.substring(0,2)
         var rucc = d.properties.rucc
+        var disabled = ( snapType == "snap21" && (st == "02" || st == "15")) ? " disabled" : ""
 
-        return "toRemove countyPath q-" + colors.indexOf(color) + " st-" + st + " rucc-" + rucc + zoomed + clicked
+        return "toRemove countyPath q-" + colors.indexOf(color) + " st-" + st + " rucc-" + rucc + zoomed + clicked + disabled
       })
       .transition()
       .attr("fill", function(d){
@@ -535,10 +574,10 @@ function updateGraphic(snapType){
 
         return colorScale(1 - +d["properties"][snapType]/+d.properties.cost)
       })
-      .attr("stroke", function(d){
-        // console.log(d3.select(".zoomed").node())
-        return colorScale(1 - +d["properties"][snapType]/+d.properties.cost)
-      })
+      // .attr("stroke", function(d){
+      //   // console.log(d3.select(".zoomed").node())
+      //   // return colorScale(1 - +d["properties"][snapType]/+d.properties.cost)
+      // })
 
       if(d3.selectAll(".clicked").nodes().length != 0){
         var d = d3.select(".clicked").datum()
@@ -570,64 +609,8 @@ function updateGraphic(snapType){
       change: function(event, d){
         updateGraphic(d.item.value)
       }
-                    //   create: function (event, ui) {
-                    //     var widget = $(this).iconselectmenu("widget");
-                    //     $span = $('<i id="' + this.id + 'selected" class="avatar-selected"> ').html("&nbsp;").appendTo(widget);
-                    //     $("#" + this.id + 'selected').attr("class", $("#IconDropdown option:selected")[0].getAttribute('data-class'));
-                    // },
-                    // change: function (event, ui) {
-                    //     $("#" + this.id + 'selected').attr("class", ui.item.element[0].getAttribute('data-class'));
-                    // }
-
     })
     .styledMenu("menuWidget")
-    // change: function(event, d){
-    //   // var scenario = d.item.value
-    //   updateGraphic(d.item.value)
-    //   // if(slug == "default"){
-    //   //   clearSelected(cities)
-    //   // }else{
-    //   //   var d = cities.filter(function(o){ return o.slug == slug })[0]
-    //   //   highlight(d, true, "click", cities)
-    //   // }
-    // }
-
-    // })
-    // d3.select(".toggleContainer.tc15 .toggle").on("click", function(){
-    //   var snapType;
-    //     if(d3.select(this).classed("on")){
-    //         d3.select(this).classed("on", false)
-    //         d3.select(this).classed("off", true)
-    //         snapType = "snap"
-
-    //     }else{
-    //         d3.select(this).classed("on", true)
-    //         d3.select(this).classed("off", false)
-    //         d3.select(".toggleContainer.tc21 .toggle").classed("on", false)
-    //         d3.select(".toggleContainer.tc21 .toggle").classed("off", true)
-    //         snapType = "snap15"
-    //     }
-    //     updateGraphic(snapType)
-
-    // })
-
-    // d3.select(".toggleContainer.tc21 .toggle").on("click", function(){
-    //   var snapType;
-    //     if(d3.select(this).classed("on")){
-    //         d3.select(this).classed("on", false)
-    //         d3.select(this).classed("off", true)
-    //         snapType = "snap"
-
-    //     }else{
-    //         d3.select(this).classed("on", true)
-    //         d3.select(this).classed("off", false)
-    //         d3.select(".toggleContainer.tc15 .toggle").classed("on", false)
-    //         d3.select(".toggleContainer.tc15 .toggle").classed("off", true)
-    //         snapType = "snap21"
-    //     }
-    //     updateGraphic(snapType)
-
-    // })
 
 
 

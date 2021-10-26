@@ -29,7 +29,10 @@
                             <div class = 'toggle off t21'></div>
                         </div>
  -->
-    <div id = "map"></div>
+    <div id = "map">
+      <div id = "zoom-in"></div>
+      <div id = "zoom-out"></div>
+    </div>
     <div id = "bars">
     </div>
   </div>
@@ -38,14 +41,16 @@
     <div id = "ruccTitle">Rural-Urban Continuum Codes</div>
     <div id = "ruccInnerContainer">
       <img src = "img/ruccLine.png">
-      <div id = "ruccLess">More rural</div>
-      <div id = "ruccMore">More urban</div>
+      <div id = "ruccLess">More urban</div>
+      <div id = "ruccMore">More rural</div>
     </div>
   </div>
   <div id = "notes"><strong>Note:</strong> Our analyses do not yet account for the 21 percent increase to the Thrifty Food Plan for Alaska and Hawaii. The US Department of Agriculture plans to announce adjustments for those states by the end of 2021.</div>
 
   <script type="text/javascript" src="js/lib/pym.min.js"></script>
   <script src="js/lib/d3.v4.min.js"></script>
+  <!-- <script src="https://d3js.org/d3.v7.min.js"></script> -->
+
   <script src="https://d3js.org/topojson.v3.min.js"></script>
   <script src="js/lib/jquery-1.11.3.min.js"></script>
   <script src="js/lib/jquery-ui.min.js"></script>
