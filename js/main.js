@@ -37,10 +37,17 @@ function getSnapType(){
 
 
 function drawGraphic(cw){
+
+
+d3.selectAll("svg").remove()
+d3.selectAll(".toRemove").remove()
+
+
+
 var MOBILE = (cw < 900);
 var PHONE = (cw < 520);
 console.log(PHONE)
-var bars_width = (MOBILE) ? cw - 50 : 380;
+var bars_width = (MOBILE) ? cw - 50 : 330;
 var bars_height = 100;
 
 var map_width = (MOBILE) ? cw - 50 : cw -50-bars_width;
@@ -48,8 +55,7 @@ var legend_height = 80;
 var map_height = map_width * (600/960) + legend_height;
 var active = ""
 
-d3.selectAll("svg").remove()
-d3.selectAll(".toRemove").remove()
+
 var path = d3.geoPath().projection(scale(map_width/960));
 
 
@@ -114,31 +120,12 @@ for (var i = 0; i < breaks.length; i++){
     .attr("dy", keyH + 13)
     .text(PERCENT(breaks[i]))
   .style("opacity", function(){
-    console.log(i)
     if(!PHONE) return 1
     else return(i%2 == 1) ? 1 : 0;
   })
 }
 
-var ruccC = d3.select("#ruccInnerContainer")
-for(var i = 1; i < 10; i++){
-ruccC.append("div")
-    .attr("class", "ruccInner toRemove")
-    .text(i)
-    .datum(i)
-    .on("mouseover", function(d){
-      d3.selectAll(".countyPath").classed("hide", true)
-      d3.selectAll(".countyPath.rucc-" + d).classed("hide", false)
-    })
-    .on("mouseout", function(d){
-      d3.selectAll(".countyPath").classed("hide", false)
-    })
-    .style("left", function(){
-      var w = d3.select("#graphic").node().getBoundingClientRect().width
-      var total = 506;
-      return (((i-1)*total/9) + .5*(w-total) + "px")
-    })
-}
+
 
 var bHeight = (MOBILE) ? bars_height + 100: map_height + legend_height;
 d3.select("#bars")
@@ -156,7 +143,7 @@ d3.select("#bars").append("div")
   .style("height", "24px")
   .attr("id", "countyLabel")
   .attr("class","toRemove")
-  .text("National Average")
+  .text("National average")
   .style("margin-top", mTop + "px")
   .style("top","22px")
 
@@ -268,55 +255,135 @@ barsSvg.append("text")
 
 
 
-function restoreNational(){
+
+// restoreNational();
+
+d3.json("data/data.json", function(error, us) {
+
+var ruccC = d3.select("#ruccInnerContainer")
+for(var i = 1; i < 10; i++){
+ruccC.append("div")
+    .attr("class", "ruccInner toRemove")
+    .text(i)
+    .datum(i)
+    .on("mouseover", function(d){
+      d3.selectAll(".countyPath").classed("hide", true)
+      d3.selectAll(".countyPath.rucc-" + d).classed("hide", false)
+      if(d3.selectAll(".clicked").nodes().length == 0){
+        restoreNational(d)
+      }
+    })
+    .on("mouseout", function(d){
+      
+      if(d3.selectAll(".ruccInner.ruccClicked").nodes().length == 0){
+        d3.selectAll(".countyPath").classed("hide", false)
+      }else{
+        d3.selectAll(".countyPath").classed("hide", true)
+        var cl = d3.select(".ruccInner.ruccClicked").datum()
+        console.log(cl)
+        d3.selectAll(".countyPath.rucc-" + cl).classed("hide", false)
+      }
+      if(d3.selectAll(".clicked").nodes().length == 0){
+        restoreNational()
+      }
+    })
+    .on("click", function(d){
+      if(d3.select(this).classed("ruccClicked")){
+        d3.select(this).classed("ruccClicked", false)
+        d3.selectAll(".countyPath").classed("hide", false)
+      }else{
+        d3.selectAll(".ruccInner").classed("ruccClicked", false)
+        d3.select(this).classed("ruccClicked", true)
+        d3.selectAll(".countyPath").classed("hide", true)
+        d3.selectAll(".countyPath.rucc-" + d).classed("hide", false)
+      }
+      if(d3.selectAll(".clicked").nodes().length == 0){
+        restoreNational()
+      }
+    })
+    .style("left", function(){
+      var w = d3.select("#graphic").node().getBoundingClientRect().width
+      var total = 506;
+      return (((i-1)*total/9) + .5*(w-total) + "px")
+    })
+}
+
+
+function restoreNational(ruccOverride){
   // var natlSnap = (getSnapType() == "snap") ? US_SNAP_COST : US_SNAP_COST15,
       // natlRatio = (getSnapType() == "snap") ? US_RATIO : US_RATIO21;
   var natlSnap,
       natlRatio,
       snapType = getSnapType()
+      ruccClicked = d3.select(".ruccInner.ruccClicked")
+    console.log(typeof(ruccOverride))
 
-  if(snapType == "snap"){
-    natlSnap = US_SNAP_COST
-    natlRatio = US_RATIO
+  if(ruccClicked.node() == null && typeof(ruccOverride) == "undefined" ){
+
+    if(snapType == "snap"){
+      natlSnap = US_SNAP_COST
+      natlRatio = US_RATIO
+    }
+    else if(snapType == "snap15"){
+      natlSnap = US_SNAP_COST15
+      natlRatio = US_RATIO15
+    }
+    else if(snapType == "snap21"){
+      natlSnap = US_SNAP_COST21
+      natlRatio = US_RATIO21    
+    }
+    d3.selectAll(".clicked").classed("clicked",false)
+    d3.select("#tt-dollars").text(DOLLARS(US_MEAL))
+    d3.select("#tt-percent").text(function(){
+      return (getSnapType() == "snap") ? PERCENT(natlRatio) + " more" : PERCENT(Math.abs(natlRatio)) + " more"
+    })
+    d3.select("#countyLabel").text("National average")
+    d3.select(".barVal.meal")
+      .transition()
+      .attr("x",barX(US_MEAL) + 7 + marginLeft)
+      .text(DOLLARS(US_MEAL))
+
+    d3.select("#snapRect")
+      .transition()
+      .attr("width", barX(natlSnap))
+
+    d3.select("#costRect")
+      .transition()
+      .attr("width", barX(US_MEAL))
+
+    d3.select(".barVal.snap")
+      .transition()
+      .attr("x",barX(natlSnap) + 7 + marginLeft)
+      .text(DOLLARS(natlSnap))
+    d3.select("#ruccLabel").style("visibility","hidden")
+    d3.select("#countyLabel").style("top", "22px")
+  }else{
+    var r = (typeof(ruccOverride) == "undefined") ? d3.select(".ruccInner.ruccClicked").datum() : ruccOverride
+    var ruccAvgs = {
+      "1": 3.239099,
+      "2": 3.053862,
+      "3": 2.983320,
+      "4": 2.938644,
+      "5": 2.919323,
+      "6": 2.872674,
+      "7": 2.915412,
+      "8": 2.926389,
+      "9": 2.956258
+    }
+    var d = {"properties": {
+        "rucc": r,
+        "snap": US_SNAP_COST,
+        "snap15": US_SNAP_COST15,
+        "snap21": US_SNAP_COST21,
+        "cost": ruccAvgs[String(r)],
+        "label": "RUCC " + String(r) + " average"
+      }
+    }
+    mouseover(d)
   }
-  else if(snapType == "snap15"){
-    natlSnap = US_SNAP_COST15
-    natlRatio = US_RATIO15
-  }
-  else if(snapType == "snap21"){
-    natlSnap = US_SNAP_COST21
-    natlRatio = US_RATIO21    
-  }
-  d3.selectAll(".clicked").classed("clicked",false)
-  d3.select("#tt-dollars").text(DOLLARS(US_MEAL))
-  d3.select("#tt-percent").text(function(){
-    return (getSnapType() == "snap") ? PERCENT(natlRatio) + " more" : PERCENT(Math.abs(natlRatio)) + " more"
-  })
-  d3.select("#countyLabel").text("National average")
-  d3.select(".barVal.meal")
-    .transition()
-    .attr("x",barX(US_MEAL) + 7 + marginLeft)
-    .text(DOLLARS(US_MEAL))
-
-  d3.select("#snapRect")
-    .transition()
-    .attr("width", barX(natlSnap))
-
-  d3.select("#costRect")
-    .transition()
-    .attr("width", barX(US_MEAL))
-
-  d3.select(".barVal.snap")
-    .transition()
-    .attr("x",barX(natlSnap) + 7 + marginLeft)
-    .text(DOLLARS(natlSnap))
-  d3.select("#ruccLabel").style("visibility","hidden")
-  d3.select("#countyLabel").style("top", "22px")
 }
 
-restoreNational();
 
-d3.json("data/data.json", function(error, us) {
   if (error) throw error;
 
   var g = mapSvg.append("g")
@@ -565,8 +632,10 @@ function updateGraphic(snapType){
         var st = d.id.substring(0,2)
         var rucc = d.properties.rucc
         var disabled = ( snapType == "snap21" && (st == "02" || st == "15")) ? " disabled" : ""
+        var hide = (d3.select(".ruccClicked.ruccInner").node() != null) ?
+          ( (d3.select(".ruccClicked.ruccInner").datum() == rucc) ? "" : " hide") : ""
 
-        return "toRemove countyPath q-" + colors.indexOf(color) + " st-" + st + " rucc-" + rucc + zoomed + clicked + disabled
+        return "toRemove countyPath q-" + colors.indexOf(color) + " st-" + st + " rucc-" + rucc + zoomed + clicked + disabled + hide
       })
       .transition()
       .attr("fill", function(d){

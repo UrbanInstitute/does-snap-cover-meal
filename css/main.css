@@ -3,6 +3,7 @@ html, body{
 }
 body{
 	display: inline-block;
+    margin: 0px;
 }
 
 .urban-logo-text{
@@ -48,6 +49,11 @@ body{
 }
 .countyPath.mouseover.zoomed, .countyPath.clicked.zoomed{
     /*stroke-width: 1px !important;*/
+}
+.countyPath.clicked.hide{
+    stroke-dasharray: .4 1;
+    stroke-width: .4px !important;
+    stroke: #000 !important;
 }
 #legendTitle{
 	font-style: italic;
@@ -309,7 +315,7 @@ input:checked + .slider:before {
     width: fit-content;
     margin: 0 auto;
 }
-#ruccInnerContainer div.ruccInner:hover{
+#ruccInnerContainer div.ruccInner:hover, #ruccInnerContainer div.ruccInner.ruccClicked{
     color: white;
     background: black;
     border: 1px solid black;
@@ -336,11 +342,11 @@ position: absolute;
     top: 39px;
 }
 #ruccInnerContainer img{
-    width: calc(100% - 140px);
-    left: 70px;
-    position: absolute;
-    z-index: 1;
-    top: 72px;
+width: 560px;
+left: calc(50% - 291px);
+position: absolute;
+z-index: 1;
+top: 74px;
 }
 #ruccMore, #ruccLess{
     position: absolute;
@@ -349,10 +355,10 @@ position: absolute;
     top: 70px;
 }
 #ruccLess{
-    left: 0px;
+    left: 92px;
 }
 #ruccMore{
-    right: 0px;
+    right: 116px;
 }
 .ui-selectmenu-button.ui-button {
     display: block;
