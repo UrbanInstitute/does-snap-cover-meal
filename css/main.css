@@ -419,8 +419,13 @@ select{
     }
 
     #bars{
-        margin-top: -10px;
-        margin-bottom: 40px;
+margin-top: -50px;
+    padding-top: 10px;
+    background: white;
+    padding-bottom: 60px;
+    padding-left: 30px;
+    margin-left: -20px;
+    padding-right: 20px;
     }
 }
 @media(max-width: 768px){
@@ -441,11 +446,11 @@ select{
         margin-top: 20px;
     }
     #zoom-out{
-    right: -13px;
+    right: 0px;
     bottom: 50px;
     }
     #zoom-in{
-        right: -13px;
+        right: 0px;
         bottom: 85px;
     }
     #ruccPopup{

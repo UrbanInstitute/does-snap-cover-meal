@@ -44,13 +44,13 @@ d3.selectAll(".toRemove").remove()
 
 
 
-var MOBILE = (cw < 768);
+var MOBILE = (cw < 900);
 var PHONE = (cw < 520);
 console.log(PHONE)
-var bars_width = (MOBILE) ? cw - 50 : 330;
+var bars_width = (MOBILE) ? cw - 30 : 330;
 var bars_height = 100;
 
-var map_width = (MOBILE) ? cw - 20 : cw -50-bars_width;
+var map_width = (MOBILE) ? cw - 0 : cw -50-bars_width;
 var legend_height = 80;
 var map_height = map_width * (600/960) + legend_height;
 var active = ""
@@ -137,7 +137,7 @@ d3.select("#map")
   .style("height", (map_height + legend_height) + "px")
   .style("width", map_width)
 
-var mTop = (MOBILE) ? -50 : legend_height;
+var mTop = (MOBILE) ? 0 : legend_height;
 d3.select("#bars").append("div")
   .style("width", bars_width + "px")
   .style("height", "24px")
