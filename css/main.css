@@ -138,6 +138,7 @@ body{
 	font-size: 20px;
 	font-weight: bold;
     position: relative;
+    display: inline-table;
 }
 #tt-text{
 	font-size: 18px;
@@ -154,15 +155,7 @@ font-weight: bold;
     padding: 1px 10px;
     padding-bottom: 3px;
 }
-@media(max-width: 900px){
-	.urban-logo-text{
-	    bottom: 0px;
-		right: 30px;
-	}
-	#bars{
-		margin-top: 60px;
-	}
-}
+
 .button{
     padding: 10px 20px;
     position: absolute;
@@ -416,13 +409,67 @@ h2{
     margin-top: -7px;
     height: 60px;
 }
+select{
+    display: none;
+}
+@media(max-width: 900px){
+    .urban-logo-text{
+        bottom: 0px;
+        right: 30px;
+    }
 
-@media(max-width: 520px){
+    #bars{
+        margin-top: -10px;
+        margin-bottom: 40px;
+    }
+}
+@media(max-width: 768px){
     .toggleContainer {
         top: 72px;
         left: calc(50% - 62px);
     }
+    .ui-selectmenu-button.ui-button{
+        width: calc(100% - 30px);
+    }
+    #tt-text br{
+        display: none;
+    }
+    #tt-percent{
+        margin-left: 6px;
+    }
     #mapSvg{
-        margin-top: 50px;
+        margin-top: 20px;
+    }
+    #zoom-out{
+    right: -13px;
+    bottom: 50px;
+    }
+    #zoom-in{
+        right: -13px;
+        bottom: 85px;
+    }
+    #ruccPopup{
+        padding: 10px;
+        width: 125px;
+        font-size: 14px;
+    }
+    #ruccInnerContainer img, #ruccMore, #ruccLess{
+        display: none;
+    }
+    body{
+        padding-bottom: 30px;
+    }
+    h2{
+        font-size: 21px;
+    margin-left: 14px;
+    width: calc(100% - 28px);
+    }
+    #bars{
+        margin-bottom: 55px;
+    }
+}
+@media(max-width: 350px){
+    #ruccInnerContainer div.ruccInner{
+        width: 25px;
     }
 }

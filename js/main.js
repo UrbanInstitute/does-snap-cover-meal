@@ -44,13 +44,13 @@ d3.selectAll(".toRemove").remove()
 
 
 
-var MOBILE = (cw < 900);
+var MOBILE = (cw < 768);
 var PHONE = (cw < 520);
 console.log(PHONE)
 var bars_width = (MOBILE) ? cw - 50 : 330;
 var bars_height = 100;
 
-var map_width = (MOBILE) ? cw - 50 : cw -50-bars_width;
+var map_width = (MOBILE) ? cw - 20 : cw -50-bars_width;
 var legend_height = 80;
 var map_height = map_width * (600/960) + legend_height;
 var active = ""
@@ -303,7 +303,7 @@ ruccC.append("div")
     })
     .style("left", function(){
       var w = d3.select("#graphic").node().getBoundingClientRect().width
-      var total = 506;
+      var total = (MOBILE) ? Math.min(cw-20, 506-20) : 506;
       return (((i-1)*total/9) + .5*(w-total) + "px")
     })
 }
