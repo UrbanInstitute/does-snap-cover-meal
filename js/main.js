@@ -176,7 +176,7 @@ ruccLabel.append("div")
   // .html("RUCC code <span></span>")
 
   // .style("margin-top", mTop + "px")  
-
+// (a - b) / a  = a/a  - b/a
 var barsSvg = d3.select("#bars").append("svg")
   .attr("width", bars_width)
   .attr("height", bars_height)
@@ -396,7 +396,7 @@ function restoreNational(ruccOverride){
       .attr("class", function(d){
         var cost = +d.properties.cost,
             snap21 = +d.properties.snap21
-        var color = colorScale(1 - snap21/cost)
+        var color = colorScale((cost - snap21)/snap21)
         var st = d.id.substring(0,2)
         var rucc = d.properties.rucc
         var disabled = (st == "02" || st == "15") ? " disabled" : ""
@@ -410,7 +410,7 @@ function restoreNational(ruccOverride){
         // console.log(d)
         var cost = +d.properties.cost,
         snap21 = +d.properties.snap21
-        return colorScale(1 - snap21/cost)
+        return colorScale((cost - snap21)/snap21)
       })
       // .attr("stroke", function(d){
       //   var cost = +d.properties.cost,
@@ -507,7 +507,7 @@ zoomOut.append("text")
 
 function mouseover(d){
   // console.log(this, d)
-    var ratio = (1 - +d["properties"][getSnapType()]/+d["properties"]["cost"])
+    var ratio = (+d["properties"]["cost"] - +d["properties"][getSnapType()])/+d["properties"][getSnapType()]
 // console.log(ratio)
     d3.select("#tt-percent").text(function(){
       var moreLess = (ratio < 0) ? " less" : " more"
@@ -628,7 +628,7 @@ function updateGraphic(snapType){
       .attr("class", function(d){
         var zoomed = (d3.select(this).classed("zoomed")) ? " zoomed" : "" 
         var clicked = (d3.select(this).classed("clicked")) ? " clicked" : "" 
-        var color = colorScale(1 - +d["properties"][snapType]/+d.properties.cost)
+        var color = colorScale( (+d["properties"]["cost"] - +d["properties"][snapType])/+d["properties"][snapType])
         var st = d.id.substring(0,2)
         var rucc = d.properties.rucc
         var disabled = ( snapType == "snap21" && (st == "02" || st == "15")) ? " disabled" : ""
@@ -641,7 +641,7 @@ function updateGraphic(snapType){
       .attr("fill", function(d){
         // console.log(d)
 
-        return colorScale(1 - +d["properties"][snapType]/+d.properties.cost)
+        return colorScale((+d["properties"]["cost"] - +d["properties"][snapType])/+d["properties"][snapType])
       })
       // .attr("stroke", function(d){
       //   // console.log(d3.select(".zoomed").node())
